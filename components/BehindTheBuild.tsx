@@ -3,7 +3,6 @@
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import MobileCarouselControls from "./MobileCarouselControls";
 
 type Chapter = { index: string; eyebrow: string; title: string; copy: string; scene: "idea" | "experience" | "engine" | "launch" };
 
@@ -16,10 +15,30 @@ const chapters: Chapter[] = [
 
 function IdeaScene() {
   return <div className="build-scene idea-scene" aria-hidden="true">
-    <div className="idea-sheet sheet-a"><span>PROBLEM / 01</span><i /><i /><i /><b>?</b></div>
-    <div className="idea-sheet sheet-b"><span>FLOW / 02</span><div className="sketch-flow"><i /><em /><i /></div></div>
-    <div className="idea-sheet sheet-c"><span>SOLUTION / 03</span><div className="sketch-ui"><i /><i /><i /></div></div>
-    <svg className="idea-connectors" viewBox="0 0 800 560"><path d="M90 160 C280 40 350 350 710 140"/><path d="M80 410 C310 510 460 210 730 440"/></svg>
+    <div className="idea-grid-orbit orbit-a" /><div className="idea-grid-orbit orbit-b" />
+    <svg className="idea-connectors" viewBox="0 0 1000 700" preserveAspectRatio="none">
+      <defs><marker id="idea-arrow" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="9" markerHeight="9" orient="auto"><path d="M1 1 11 6 1 11 3.5 6z" /></marker></defs>
+      <path className="connector-ghost" d="M420 210 C465 174 510 172 548 198" /><path className="connector-live connector-one" pathLength="1" d="M420 210 C465 174 510 172 548 198" markerEnd="url(#idea-arrow)" />
+      <path className="connector-ghost" d="M780 322 C782 344 744 351 690 360" /><path className="connector-live connector-two" pathLength="1" d="M780 322 C782 344 744 351 690 360" markerEnd="url(#idea-arrow)" />
+      <path className="connector-branch" d="M454 177 L454 115 L526 115" />
+      <circle className="connector-node node-one" cx="420" cy="210" r="5"/><circle className="connector-node node-two" cx="780" cy="322" r="5"/><circle className="connector-node node-three" cx="690" cy="360" r="4"/>
+    </svg>
+    <div className="path-index path-index-one"><b>01</b><i>→</i><b>02</b></div><div className="path-index path-index-two"><b>02</b><i>→</i><b>03</b></div>
+    <section className="idea-sheet sheet-a">
+      <header><span>01 / DISCOVER</span><b>PROBLEM</b></header>
+      <div className="sticky-board"><article className="sticky-note sticky-one"><i>01</i><p>What&apos;s frustrating today?</p><b /></article><article className="sticky-note sticky-two"><i>02</i><p>What do users need?</p><b /></article><article className="sticky-note sticky-three"><i>03</i><p>What&apos;s the real goal?</p><b /></article></div>
+      <footer><i /> LISTEN / QUESTION / DEFINE</footer>
+    </section>
+    <section className="idea-sheet sheet-b">
+      <header><span>02 / CONNECT</span><b>FLOW</b></header>
+      <div className="flow-board">{[["DISCOVER","01"],["INTERACT","02"],["COMPLETE","03"]].map(([label,index],i)=><div className={`flow-state flow-state-${i+1}`} key={label}><div className="flow-window"><em>{i===0?"?":i===1?"↗":"✓"}</em><i/><span/><span/><b>{i===0?"DEFINE":i===1?"CHOOSE":"READY"}</b></div><small>{index} / {label}</small></div>)}<svg viewBox="0 0 600 120" preserveAspectRatio="none"><defs><marker id="flow-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 10 5 0 10z"/></marker></defs><path className="flow-path flow-path-one" pathLength="1" d="M155 62 C190 18 220 18 255 61" markerEnd="url(#flow-arrow)"/><path className="flow-path flow-path-two" pathLength="1" d="M350 61 C385 104 420 104 453 61" markerEnd="url(#flow-arrow)"/><circle cx="206" cy="31" r="4"/><circle cx="402" cy="91" r="4"/></svg></div>
+      <footer><i /> INTENT BECOMES INTERACTION</footer>
+    </section>
+    <section className="idea-sheet sheet-c">
+      <header><span>03 / RESOLVE</span><b>SOLUTION</b></header>
+      <div className="solution-board"><div className="solution-ui"><div className="solution-nav"><i/><span/><span/></div><div className="solution-layout"><aside><i/><i/><i/></aside><main><b/><span/><span/><div><i/><i/></div></main></div></div><svg viewBox="0 0 250 160"><path className="solution-path" pathLength="1" d="M12 42 H53 V16 H95 M53 42 V58 H95 M53 58 V101 H95 M53 101 V144 H95"/><circle cx="12" cy="42" r="4"/><circle cx="95" cy="16" r="4"/><circle cx="95" cy="58" r="4"/><circle cx="95" cy="101" r="4"/><circle cx="95" cy="144" r="4"/></svg><div className="component-tree"><span>APP SHELL</span><i>HEADER</i><i>CONTENT</i><i>STATE</i><i>ACTION</i></div></div>
+      <footer><span className="ready-label"><i>✓</i> READY TO BUILD</span><b>STRUCTURE / VERIFIED</b></footer>
+    </section>
     <div className="idea-note">IDEA → SYSTEM</div>
   </div>;
 }
@@ -68,11 +87,14 @@ export default function BehindTheBuild() {
   const root = useRef<HTMLElement>(null); const stage = useRef<HTMLDivElement>(null); const track = useRef<HTMLDivElement>(null);
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
+    ScrollTrigger.config({ ignoreMobileResize: true });
     const context = gsap.context(() => {
       const media = gsap.matchMedia();
-      media.add("(min-width: 901px) and (prefers-reduced-motion: no-preference)", () => {
-        const distance = () => Math.max(0,(track.current?.scrollWidth ?? 0)-innerWidth); const travelShare=.9;
-        const timeline=gsap.timeline({ defaults:{ease:"none"}, scrollTrigger:{ id:"behind-build-horizontal", trigger:stage.current, start:"top top", end:()=>`+=${distance()/travelShare}`, pin:true, pinSpacing:true, scrub:1.05, anticipatePin:1, invalidateOnRefresh:true, onUpdate:self=>root.current?.style.setProperty("--build-progress",`${self.progress}`) }});
+      media.add("(prefers-reduced-motion: no-preference)", () => {
+        const syncViewport=()=>root.current?.style.setProperty("--story-viewport",`${stage.current?.clientWidth??innerWidth}px`);
+        syncViewport();
+        const distance=()=>{const panels=track.current?.querySelectorAll<HTMLElement>(".build-chapter");const last=panels?.[panels.length-1];return Math.max(0,(last?.offsetLeft??0)+(last?.offsetWidth??0)-(stage.current?.clientWidth??innerWidth))}; const travelShare=.9;
+        const timeline=gsap.timeline({ defaults:{ease:"none"}, scrollTrigger:{ id:"behind-build-horizontal", trigger:stage.current, start:"top top", end:()=>`+=${distance()/travelShare}`, pin:true, pinSpacing:true, scrub:1.05, anticipatePin:1, invalidateOnRefresh:true, onRefreshInit:syncViewport, onUpdate:self=>root.current?.style.setProperty("--build-progress",`${self.progress}`) }});
         timeline.fromTo(".build-stage-chrome,.build-stage-footer",{opacity:.3},{opacity:1,duration:.05,ease:"power1.out"})
           .fromTo(".build-chapter:first-child .build-copy,.build-chapter:first-child .build-visual",{scale:.987},{scale:1,duration:.05,ease:"power1.out"},0)
           .to(track.current,{x:()=>-distance(),duration:travelShare},.05)
@@ -84,7 +106,21 @@ export default function BehindTheBuild() {
           if(front.length) gsap.fromTo(front,{x:45},{x:-25,scrollTrigger:{trigger:panel,containerAnimation:timeline,start:"left right",end:"right left",scrub:true}});
           if(back.length) gsap.fromTo(back,{x:-25},{x:20,scrollTrigger:{trigger:panel,containerAnimation:timeline,start:"left right",end:"right left",scrub:true}});
         });
-        return()=>root.current?.style.removeProperty("--build-progress");
+        const ideaTimeline=gsap.timeline({scrollTrigger:{trigger:".build-chapter--idea",containerAnimation:timeline,start:"left 94%",end:"right 92%",scrub:true}});
+        ideaTimeline.fromTo(".sheet-a",{y:24,rotate:-7,opacity:0},{y:0,rotate:-3.5,opacity:1,duration:.18,ease:"power2.out"})
+          .fromTo(".sticky-note",{y:18,scale:.88,rotate:0,opacity:0},{y:0,scale:1,opacity:1,stagger:.045,duration:.18,ease:"power2.out"},.06)
+          .fromTo(".connector-one",{strokeDashoffset:1},{strokeDashoffset:0,duration:.16},.21)
+          .fromTo(".node-one",{scale:0,transformOrigin:"center"},{scale:1,duration:.06},.3)
+          .fromTo(".sheet-b",{y:20,rotate:6,opacity:0},{y:0,rotate:2.8,opacity:1,duration:.16,ease:"power2.out"},.29)
+          .fromTo(".flow-state",{y:12,opacity:0},{y:0,opacity:1,stagger:.065,duration:.12,ease:"power2.out"},.36)
+          .fromTo(".flow-path",{strokeDashoffset:1},{strokeDashoffset:0,stagger:.075,duration:.12},.41)
+          .fromTo(".connector-two",{strokeDashoffset:1},{strokeDashoffset:0,duration:.15},.56)
+          .fromTo(".sheet-c",{y:28,rotate:-3,opacity:0},{y:0,rotate:-.8,opacity:1,duration:.17,ease:"power2.out"},.63)
+          .fromTo(".solution-path",{strokeDashoffset:1},{strokeDashoffset:0,duration:.12},.7)
+          .fromTo(".solution-ui,.component-tree",{y:10,opacity:0},{y:0,opacity:1,stagger:.05,duration:.13,ease:"power2.out"},.72)
+          .fromTo(".ready-label",{scale:.9,opacity:0},{scale:1,opacity:1,duration:.12,ease:"power2.out"},.84)
+          .fromTo(".idea-note",{opacity:0},{opacity:1,duration:.1},.9);
+        return()=>{root.current?.style.removeProperty("--build-progress");root.current?.style.removeProperty("--story-viewport")};
       }); return()=>media.revert();
     },root); return()=>context.revert();
   },[]);
@@ -93,8 +129,7 @@ export default function BehindTheBuild() {
     <div className="build-prelude"><div><p>05 / PROCESS</p><span>SECOND HORIZONTAL CHAPTER</span></div><h2 id="build-heading">BEHIND<br/><em>THE BUILD.</em></h2><p>Four connected stages. One end-to-end mindset—from the first question to a product people can use.</p><div className="build-axis">VERTICAL <span>↓</span> HORIZONTAL <span>→</span></div></div>
     <div ref={stage} className="build-stage">
       <div className="build-stage-chrome" aria-hidden="true"><span>BEHIND THE BUILD / 04</span><span className="build-progress"><i/></span><span>IDEA → LAUNCH</span></div>
-      <MobileCarouselControls trackRef={track} count={chapters.length} label="chapter" itemSelector=".build-chapter" />
-      <div ref={track} className="build-track" role="region" aria-label="Behind the Build chapters. Swipe horizontally or use left and right arrow keys." tabIndex={0}>{chapters.map(chapter=><BuildChapter chapter={chapter} key={chapter.index}/>)}</div>
+      <div ref={track} className="build-track" role="region" aria-label="Behind the Build chapters. Continue scrolling vertically to move through the process." tabIndex={0}>{chapters.map(chapter=><BuildChapter chapter={chapter} key={chapter.index}/>)}</div>
       <div className="build-stage-footer" aria-hidden="true"><span>USE VERTICAL SCROLL</span><b>→</b><span>PROCESS / X</span></div>
     </div>
     <div className="build-review-stop"><p>END-TO-END / COMPLETE</p><h2>FROM IDEA<br/><span>TO IMPACT.</span></h2><small>NEXT / LET&apos;S CONNECT</small></div>

@@ -3,7 +3,6 @@
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import MobileCarouselControls from "./MobileCarouselControls";
 
 type Project = { index: string; name: string; type: string; statement: string; tags: string[]; tone: "acid" | "blue" | "mono" };
 
@@ -41,16 +40,24 @@ export default function ProjectsShowcase() {
 
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
+    ScrollTrigger.config({ ignoreMobileResize: true });
     const context = gsap.context(() => {
       const media = gsap.matchMedia();
-      media.add("(min-width: 901px) and (prefers-reduced-motion: no-preference)", () => {
-        const distance = () => Math.max(0, (track.current?.scrollWidth ?? 0) - window.innerWidth);
+      media.add("(prefers-reduced-motion: no-preference)", () => {
+        const syncViewport = () => root.current?.style.setProperty("--story-viewport", `${stage.current?.clientWidth ?? window.innerWidth}px`);
+        syncViewport();
+        const distance = () => {
+          const panels = track.current?.querySelectorAll<HTMLElement>(".project-panel");
+          const last = panels?.[panels.length - 1];
+          return Math.max(0, (last?.offsetLeft ?? 0) + (last?.offsetWidth ?? 0) - (stage.current?.clientWidth ?? window.innerWidth));
+        };
         const travelShare = 0.88;
         const timeline = gsap.timeline({
           defaults: { ease: "none" },
           scrollTrigger: {
             id: "projects-horizontal", trigger: stage.current, start: "top top", end: () => `+=${distance() / travelShare}`,
             pin: true, pinSpacing: true, scrub: 1.05, anticipatePin: 1, invalidateOnRefresh: true,
+            onRefreshInit: syncViewport,
             onUpdate: (self) => root.current?.style.setProperty("--projects-progress", `${self.progress}`),
           },
         });
@@ -66,7 +73,7 @@ export default function ProjectsShowcase() {
             scrollTrigger: { trigger: panel, containerAnimation: timeline, start: "left 78%", end: "left 48%", scrub: true },
           });
         });
-        return () => root.current?.style.removeProperty("--projects-progress");
+        return () => { root.current?.style.removeProperty("--projects-progress"); root.current?.style.removeProperty("--story-viewport"); };
       });
       return () => media.revert();
     }, root);
@@ -84,8 +91,7 @@ export default function ProjectsShowcase() {
 
       <div ref={stage} className="projects-stage">
         <div className="projects-stage-chrome" aria-hidden="true"><span>SELECTED WORK / 2026</span><span className="stage-progress"><i /></span><span>03 PROJECT SYSTEMS</span></div>
-        <MobileCarouselControls trackRef={track} count={projects.length} label="project" itemSelector=".project-panel" />
-        <div ref={track} className="projects-track" role="region" aria-label="Projects. Swipe horizontally or use left and right arrow keys." tabIndex={0}>
+        <div ref={track} className="projects-track" role="region" aria-label="Projects. Continue scrolling vertically to move through the project stories." tabIndex={0}>
           {projects.map((project) => (
             <article className={`project-panel project-panel--${project.tone}`} key={project.name} role="group" aria-label={`Project ${project.index} of ${projects.length}: ${project.name}`}>
               <div className="project-copy">
