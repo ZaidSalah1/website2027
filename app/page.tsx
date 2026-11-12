@@ -4,6 +4,9 @@ import ReadyTransition from "../components/ReadyTransition";
 import TechMatrix from "../components/TechMatrix";
 import BehindTheBuild from "../components/BehindTheBuild";
 import ContactConclusion from "../components/ContactConclusion";
+import GlobalDock from "../components/GlobalDock";
+import CinematicProjectGallery from "../components/CinematicProjectGallery";
+import DesignExhibition from "../components/DesignExhibition";
 
 export default function Home() {
   return (
@@ -11,10 +14,13 @@ export default function Home() {
       <a className="skip-link" href="#hero-end">Skip introduction</a>
       <Hero />
       <ProjectsShowcase />
+      <CinematicProjectGallery />
+      <DesignExhibition />
       <ReadyTransition />
       <TechMatrix />
       <BehindTheBuild />
       <ContactConclusion />
+      <GlobalDock />
     </main>
   );
 }

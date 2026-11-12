@@ -6,7 +6,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 const Signal = ({ label, value }: { label: string; value: string }) => (
-  <div className="signal-row"><span>{label}</span><b>{value}</b></div>
+  <div className="signal-row"><span>{label}</span><i aria-hidden="true" /><b>{value}</b></div>
 );
 
 export default function Hero() {
@@ -22,8 +22,7 @@ export default function Hero() {
         .from("[data-intro='chrome']", { opacity: 0, y: -12, duration: .6, stagger: .08 })
         .from("[data-intro='title']", { yPercent: 105, duration: 1.05, stagger: .09 }, "-=.22")
         .from("[data-intro='portrait']", { yPercent: 12, opacity: 0, scale: .96, duration: 1.15 }, "-=.85")
-        .from("[data-intro='panel']", { opacity: 0, y: 24, duration: .72, stagger: .12 }, "-=.55")
-        .from("[data-intro='dock']", { opacity: 0, y: 28, duration: .65 }, "-=.45");
+        .from("[data-intro='panel']", { opacity: 0, y: 24, duration: .72, stagger: .12 }, "-=.55");
 
       gsap.timeline({
         scrollTrigger: { trigger: root.current, start: "top top", end: "bottom top", scrub: .7 },
@@ -47,7 +46,7 @@ export default function Hero() {
   }, []);
 
   return (
-    <section ref={root} className="hero" aria-labelledby="hero-title">
+    <section ref={root} id="home" className="hero" aria-labelledby="hero-title">
       <div className="hero-grid" aria-hidden="true" />
       <div className="orb" aria-hidden="true" />
       <header className="topbar">
@@ -57,9 +56,12 @@ export default function Hero() {
       </header>
 
       <div className="back-word" data-layer="back" aria-hidden="true">ENGINEER</div>
-      <div className="name-lockup" id="hero-title" data-layer="title">
-        <div className="title-mask"><h1 data-intro="title">ZAID</h1></div>
-        <div className="title-mask"><p data-intro="title">BUILDS</p></div>
+      <div className="name-lockup" id="hero-title">
+        <div className="title-mask" data-layer="title"><h1 data-intro="title">ZAID SALAH</h1></div>
+        <div className="hero-manifesto" aria-label="Engineering digital products">
+          <span data-text="ENGINEERING">ENGINEERING</span>
+          <span data-text="DIGITAL PRODUCTS">DIGITAL PRODUCTS</span>
+        </div>
       </div>
 
       <div className="portrait-wrap" data-intro="portrait" data-parallax="portrait">
@@ -69,34 +71,28 @@ export default function Hero() {
           alt="Zaid wearing a light gray suit"
           fill
           priority
-          sizes="(max-width: 800px) 84vw, 38vw"
+          sizes="(max-width: 800px) 90vw, 43vw"
         />
       </div>
 
       <aside className="telemetry panel" data-intro="panel" data-parallax="ui">
-        <div className="panel-label">TELEMETRY / ACTIVE <span>••</span></div>
-        <strong>BASED IN<br />PALESTINE</strong>
-        <small>PRODUCTS WITH PURPOSE.</small>
+        <div className="panel-label">PRODUCT PATH / END-TO-END <span>••</span></div>
+        <strong>FROM IDEA<br />TO DEPLOYMENT</strong>
+        <p>Designing useful systems across mobile, web, and backend.</p>
+        <div className="process-rail" aria-hidden="true"><i /><i /><i /></div>
       </aside>
 
       <aside className="capabilities panel" data-intro="panel" data-parallax="ui">
-        <div className="panel-label">CORE SYSTEMS / 03 <em>↗</em></div>
+        <div className="panel-label">SPECIALTIES / 03 <em>↗</em></div>
         <Signal label="PRODUCT ENGINEERING" value="01" />
         <Signal label="MOBILE EXPERIENCES" value="02" />
-        <Signal label="SCALABLE BACKENDS" value="03" />
+        <Signal label="SCALABLE SYSTEMS" value="03" />
       </aside>
 
       <a className="cta" href="#hero-end" data-intro="panel">EXPLORE SELECTED WORK <span>↘</span></a>
       <div className="side-index" aria-hidden="true">00<br /><span>—</span><br />01</div>
       <div className="scroll-cue" data-intro="chrome"><span>SCROLL TO INITIATE</span><i /></div>
 
-      <nav className="dock" aria-label="Primary navigation" data-intro="dock">
-        <a className="active" href="#" aria-label="Home">⌂</a>
-        <a href="#hero-end">PROFILE</a>
-        <a href="#hero-end">WORK</a>
-        <a href="mailto:hello@example.com">CONTACT</a>
-        <span>00:01</span>
-      </nav>
     </section>
   );
 }

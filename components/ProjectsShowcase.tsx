@@ -4,11 +4,11 @@ import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
-type Project = { index: string; name: string; type: string; statement: string; tags: string[]; tone: "acid" | "blue" | "mono" };
+type Project = { index: string; name: string; type: string; statement: string; tags: string[]; tone: "acid" | "blue" | "mono"; ambient?: "drevr" };
 
 const projects: Project[] = [
   { index: "01", name: "SEHA PLUS", type: "DIGITAL HEALTH / PRODUCT SYSTEM", statement: "A focused healthcare experience designed around clarity, trust, and faster access to care.", tags: ["PRODUCT", "MOBILE", "HEALTHCARE"], tone: "acid" },
-  { index: "02", name: "DREVR", type: "MOBILITY / REAL-TIME PLATFORM", statement: "A real-time mobility product connecting people, routes, and decisions in one continuous flow.", tags: ["MOBILE", "REAL-TIME", "PLATFORM"], tone: "blue" },
+  { index: "02", name: "DREVR", type: "MOBILITY / REAL-TIME PLATFORM", statement: "A real-time mobility product connecting people, routes, and decisions in one continuous flow.", tags: ["MOBILE", "REAL-TIME", "PLATFORM"], tone: "blue", ambient: "drevr" },
   { index: "03", name: "SYSTEMS", type: "SELECTED ENGINEERING / MORE TO COME", statement: "Interfaces are only the surface. The work extends into resilient APIs, operations, and product infrastructure.", tags: ["BACKEND", "DEVOPS", "ARCHITECTURE"], tone: "mono" },
 ];
 
@@ -93,7 +93,7 @@ export default function ProjectsShowcase() {
         <div className="projects-stage-chrome" aria-hidden="true"><span>SELECTED WORK / 2026</span><span className="stage-progress"><i /></span><span>03 PROJECT SYSTEMS</span></div>
         <div ref={track} className="projects-track" role="region" aria-label="Projects. Continue scrolling vertically to move through the project stories." tabIndex={0}>
           {projects.map((project) => (
-            <article className={`project-panel project-panel--${project.tone}`} key={project.name} role="group" aria-label={`Project ${project.index} of ${projects.length}: ${project.name}`}>
+            <article className={`project-panel project-panel--${project.tone}${project.ambient ? ` project-panel--${project.ambient}` : ""}`} key={project.name} role="group" aria-label={`Project ${project.index} of ${projects.length}: ${project.name}`}>
               <div className="project-copy">
                 <div className="project-kicker" data-project-reveal><span>{project.index}</span>{project.type}</div>
                 <h3 data-project-reveal>{project.name}</h3><p data-project-reveal>{project.statement}</p>
