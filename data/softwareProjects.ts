@@ -1,6 +1,7 @@
 export type SoftwareProject = {
   id: string;
   name: string;
+  displayTitle: string;
   category: string;
   description: string;
   technologies: string[];
@@ -20,6 +21,7 @@ export const softwareProjects: SoftwareProject[] = [
   {
     id: "restaurant-preview",
     name: "PROJECT PREVIEW 01",
+    displayTitle: "RESTAURANT EXPERIENCE",
     category: "MOBILE PRODUCT / TEMPORARY LABEL",
     description: "Existing restaurant application artwork presented as a development preview. Final project identity and verified case-study copy are pending.",
     technologies: ["STACK PENDING", "MOBILE", "ASSET READY"],
@@ -34,6 +36,7 @@ export const softwareProjects: SoftwareProject[] = [
   {
     id: "commerce-preview",
     name: "PROJECT PREVIEW 02",
+    displayTitle: "COMMERCE PLATFORM",
     category: "COMMERCE SYSTEM / TEMPORARY LABEL",
     description: "Existing multi-device commerce artwork prepared for the cinematic gallery. Final project details will replace this temporary publication copy.",
     technologies: ["STACK PENDING", "RESPONSIVE", "ASSET READY"],
@@ -48,6 +51,7 @@ export const softwareProjects: SoftwareProject[] = [
   {
     id: "rental-preview",
     name: "PROJECT PREVIEW 03",
+    displayTitle: "CAR RENTAL EXPERIENCE",
     category: "MOBILITY INTERFACE / TEMPORARY LABEL",
     description: "Existing car-rental application artwork used to validate the flexible gallery system. Project title, stack, and outcomes remain intentionally unclaimed.",
     technologies: ["STACK PENDING", "MOBILE", "ASSET READY"],

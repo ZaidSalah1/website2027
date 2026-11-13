@@ -455,3 +455,49 @@ a { color:inherit; text-decoration:none; }
 @media(prefers-reduced-motion:reduce){
   .cinema-gallery-story{height:auto}.cinema-gallery-stage{position:relative;height:auto;min-height:0;overflow:visible}.cinema-project{position:relative;min-height:100svh;clip-path:none!important;opacity:1!important;transform:none!important}.cinema-project-copy,.cinema-project-media{opacity:1!important;transform:none!important}.design-project-copy,.design-project-media,.beyond-code-title span{opacity:1!important;transform:none!important}
 }
+
+/* Phase 8 corrective pass — one measured GSAP pin owns gallery geometry */
+.cinema-gallery-stage{--cinema-progress:0;position:relative;top:auto;height:100svh;min-height:42rem;overflow:hidden;isolation:isolate;background:#070b12}
+.cinema-gallery-progress{position:absolute;z-index:20;right:2rem;top:50%;translate:0 -50%;display:flex;flex-direction:column;align-items:center;gap:.65rem;color:#68788e;font:500 .42rem var(--font-mono);letter-spacing:.12em}.cinema-gallery-progress i{position:relative;width:1px;height:8rem;overflow:hidden;background:var(--color-border)}.cinema-gallery-progress b{position:absolute;inset:0;background:var(--lime);transform:scaleY(var(--cinema-progress));transform-origin:top;box-shadow:0 0 12px var(--color-glow)}
+.cinema-project{display:block;padding:0;background:radial-gradient(circle at 72% 50%,var(--project-ambient),transparent 31%),#070b12}
+.cinema-project-copy{position:absolute;left:6vw;top:50%;translate:0 -50%;width:min(34rem,36vw)}
+.cinema-project-copy>p{display:flex;align-items:center;gap:.9rem}.cinema-project-copy>p small{padding:.35rem .5rem;border:1px solid color-mix(in srgb,var(--project-accent) 28%,transparent);border-radius:2rem;color:#6d7c90;font:500 .4rem var(--font-mono);letter-spacing:.12em;white-space:nowrap}
+.cinema-project-copy h3{max-width:10ch;margin:1.4rem 0 1.7rem;font-size:clamp(4rem,7.2vw,7.6rem);line-height:.77}
+.cinema-project-media{position:absolute;right:4vw;top:50%;translate:0 -50%;width:56vw;height:76vh;max-height:47rem}
+.cinema-project--commerce-preview{background:radial-gradient(circle at 58% 54%,var(--project-ambient),transparent 38%),#070b12}.cinema-project--commerce-preview .cinema-project-copy{top:22%;translate:0 0;width:min(33rem,36vw)}.cinema-project--commerce-preview .cinema-project-copy h3{font-size:clamp(3.6rem,6.3vw,6.8rem)}.cinema-project--commerce-preview .cinema-project-media{right:2vw;top:56%;width:70vw;height:67vh}.cinema-project--commerce-preview .cinema-project-image{object-position:right center}.cinema-project--commerce-preview .cinema-project-orbit{width:58%}
+.cinema-project--rental-preview{background:radial-gradient(circle at 30% 50%,var(--project-ambient),transparent 32%),#070b12}.cinema-project--rental-preview .cinema-project-copy{left:auto;right:7vw;width:min(31rem,35vw)}.cinema-project--rental-preview .cinema-project-media{left:4vw;right:auto;width:53vw;height:72vh}.cinema-project--rental-preview .cinema-project-index{left:auto;right:-.04em}.cinema-project--rental-preview .cinema-project-orbit{width:64%}
+.cinema-project-media figcaption{right:1rem;bottom:1rem}
+
+@media(max-width:900px){
+  .cinema-gallery-stage{height:100svh;min-height:42rem}.cinema-project{padding:4rem 1rem 4.7rem;display:flex;flex-direction:column;justify-content:center;gap:.8rem}.cinema-project-copy,.cinema-project--commerce-preview .cinema-project-copy,.cinema-project--rental-preview .cinema-project-copy{position:relative;inset:auto;translate:none;width:100%}.cinema-project-copy>p{font-size:.42rem}.cinema-project-copy>p small{font-size:.32rem}.cinema-project-copy h3,.cinema-project--commerce-preview .cinema-project-copy h3{max-width:12ch;margin:.65rem 0 .75rem;font-size:clamp(2.8rem,11.5vw,5rem);word-spacing:.1em}.cinema-project-media,.cinema-project--commerce-preview .cinema-project-media,.cinema-project--rental-preview .cinema-project-media{position:relative;inset:auto;translate:none;width:100%;height:min(46vh,28rem)}.cinema-project--commerce-preview .cinema-project-image{object-position:center}.cinema-project-description p{font-size:.84rem}.cinema-gallery-progress{right:.65rem;top:auto;bottom:4.6rem;translate:none;flex-direction:row}.cinema-gallery-progress i{width:5rem;height:1px}.cinema-gallery-progress b{transform:scaleX(var(--cinema-progress));transform-origin:left}.cinema-project-media figcaption{bottom:.25rem}
+}
+@media(prefers-reduced-motion:reduce){.cinema-gallery-stage{height:auto;min-height:0;overflow:visible}.cinema-project{position:relative;min-height:100svh}.cinema-gallery-progress{display:none}}
+
+/* Phase 8 corrective pass — direct Nike video, no artificial media frame */
+.nike-stage{min-height:112svh;padding:clamp(6rem,8vw,8rem) clamp(1.2rem,7vw,8rem);background:radial-gradient(circle at 50% 44%,rgba(101,155,255,.075),transparent 30%),#080b11}
+.nike-video-frame{width:min(68vw,58rem);aspect-ratio:auto;margin:4rem auto 3.5rem;display:block;border:0;border-radius:0;background:transparent;box-shadow:none;overflow:visible}
+.nike-video-frame video{display:block;width:100%;height:auto;max-height:68svh;object-fit:contain;background:#05070b;box-shadow:0 2.5rem 6rem rgba(0,3,10,.48)}
+.nike-stage-copy{grid-template-columns:minmax(24rem,.9fr) minmax(18rem,.55fr)}
+.nike-stage-copy h3{font-size:clamp(3.8rem,7.2vw,7.5rem)}
+.nike-video-control{top:clamp(5.8rem,8vw,8rem)}
+
+/* Phase 8 corrective pass — individually art-directed interface studies */
+.design-project{position:relative;min-height:106svh;padding:0;display:block;overflow:hidden;border-top:1px solid var(--color-border-subtle);background:#080b11}
+.design-project::before{content:"";position:absolute;inset:0;opacity:.2;background-image:linear-gradient(var(--color-grid) 1px,transparent 1px),linear-gradient(90deg,var(--color-grid) 1px,transparent 1px);background-size:7rem 7rem;mask-image:linear-gradient(90deg,transparent,black 35%,black 65%,transparent)}
+.design-project-copy{position:absolute;z-index:6;left:6.5vw;top:50%;translate:0 -50%;width:min(35rem,38vw)}
+.design-project-copy h3{margin:1.25rem 0 1.4rem;font-size:clamp(4.2rem,7.4vw,7.8rem);line-height:.76}.design-project-copy h3 span{display:block;overflow:hidden}
+.design-project-copy>span{font-size:clamp(1rem,1.25vw,1.18rem)}
+.design-project-media{position:absolute;z-index:3;right:2.5vw;top:50%;translate:0 -50%;width:60vw;height:82vh;max-height:51rem;will-change:clip-path,transform}
+.design-project-image{object-fit:contain;will-change:transform}
+.design-media-light{width:68%;opacity:.78;filter:blur(42px)}
+.design-project-number{right:-.03em;bottom:-.2em;font-size:38vw}
+.design-project-rail{position:absolute;z-index:7;right:2rem;top:50%;translate:0 -50%;display:flex;flex-direction:column;align-items:center;gap:.6rem;color:#53647a;font:500 .4rem var(--font-mono);letter-spacing:.12em}.design-project-rail i{width:1px;height:7rem;background:linear-gradient(var(--design-accent),var(--color-border-subtle))}
+.design-project--watch{background:radial-gradient(circle at 72% 50%,rgba(217,162,127,.08),transparent 31%),#080b11}.design-project--watch .design-project-media{right:1vw;width:61vw;height:86vh}.design-project--watch .design-project-copy{top:46%}
+.design-project--crypto{background:radial-gradient(circle at 29% 49%,rgba(255,91,61,.08),transparent 30%),#080b11}.design-project--crypto .design-project-copy{left:auto;right:6.5vw;top:42%;width:min(33rem,37vw)}.design-project--crypto .design-project-media{left:2vw;right:auto;top:51%;width:53vw;height:82vh}.design-project--crypto .design-project-number{left:-.04em;right:auto}.design-project--crypto .design-project-rail{left:2rem;right:auto}
+.design-project--car{background:radial-gradient(circle at 73% 52%,rgba(215,163,109,.075),transparent 31%),#080b11}.design-project--car .design-project-copy{top:29%;translate:0 0;width:min(34rem,38vw)}.design-project--car .design-project-media{right:-1vw;top:auto;bottom:-3%;translate:none;width:66vw;height:86vh}.design-project--car .design-project-number{right:-.04em}
+
+@media(max-width:900px){
+  .nike-stage{min-height:0;padding:6rem 1.15rem}.nike-video-frame{width:100%;margin:3rem auto 2.7rem}.nike-video-frame video{max-height:none}.nike-stage-copy{display:grid;grid-template-columns:1fr;gap:1.4rem}.nike-stage-copy h3{font-size:16vw}.nike-video-control{position:static;margin-top:1.7rem}
+  .design-project,.design-project--crypto{min-height:100svh;padding:5.5rem 1.15rem 5rem;display:flex;flex-direction:column;justify-content:center;gap:1.4rem}.design-project-copy,.design-project--watch .design-project-copy,.design-project--crypto .design-project-copy,.design-project--car .design-project-copy{position:relative;inset:auto;translate:none;width:100%;order:1}.design-project-copy h3{margin:.7rem 0;font-size:14vw}.design-project-media,.design-project--watch .design-project-media,.design-project--crypto .design-project-media,.design-project--car .design-project-media{position:relative;inset:auto;translate:none;width:100%;height:min(54vh,32rem);order:2}.design-project-rail{right:.7rem;left:auto;top:auto;bottom:4.7rem;translate:none;flex-direction:row}.design-project-rail i{width:4.5rem;height:1px}.design-project-number{font-size:76vw}.design-media-light{filter:blur(28px)}
+}
+@media(prefers-reduced-motion:reduce){.design-project-media{clip-path:none!important;transform:none!important}.design-project-image,.design-project-copy h3 span,.design-project-copy>p,.design-project-copy>span,.design-project-copy>small{transform:none!important;opacity:1!important}}
