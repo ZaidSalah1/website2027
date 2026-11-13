@@ -7,10 +7,11 @@ import ContactConclusion from "../components/ContactConclusion";
 import GlobalDock from "../components/GlobalDock";
 import CinematicProjectGallery from "../components/CinematicProjectGallery";
 import DesignExhibition from "../components/DesignExhibition";
+import ProjectDetailsProvider from "../components/ProjectDetailsProvider";
 
 export default function Home() {
   return (
-    <main>
+    <ProjectDetailsProvider><main>
       <a className="skip-link" href="#hero-end">Skip introduction</a>
       <Hero />
       <ProjectsShowcase />
@@ -21,6 +22,6 @@ export default function Home() {
       <BehindTheBuild />
       <ContactConclusion />
       <GlobalDock />
-    </main>
+    </main></ProjectDetailsProvider>
   );
 }

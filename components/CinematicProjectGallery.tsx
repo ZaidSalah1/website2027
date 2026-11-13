@@ -1,12 +1,14 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import Image from "next/image";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { visibleSoftwareProjects } from "../data/softwareProjects";
+import { useProjectDetails } from "./ProjectDetailsProvider";
+import GlitchProjectImage from "./GlitchProjectImage";
 
 export default function CinematicProjectGallery() {
+  const { openProject } = useProjectDetails();
   const root = useRef<HTMLElement>(null);
   const stage = useRef<HTMLDivElement>(null);
 
@@ -33,7 +35,11 @@ export default function CinematicProjectGallery() {
             scrub: .82,
             anticipatePin: 1,
             invalidateOnRefresh: true,
-            onUpdate: (self) => stage.current?.style.setProperty("--cinema-progress", `${self.progress}`),
+            onUpdate: (self) => {
+              stage.current?.style.setProperty("--cinema-progress", `${self.progress}`);
+              const activeIndex = Math.min(panels.length - 1, Math.round(self.progress * (panels.length - 1)));
+              panels.forEach((panel, panelIndex) => panel.dataset.projectActive = panelIndex === activeIndex ? "true" : "false");
+            },
           },
         });
         panels.slice(1).forEach((panel, index) => {
@@ -48,6 +54,7 @@ export default function CinematicProjectGallery() {
         });
         return () => {
           stage.current?.style.removeProperty("--cinema-progress");
+          panels.forEach((panel) => panel.removeAttribute("data-project-active"));
           timeline.scrollTrigger?.kill();
         };
       });
@@ -66,6 +73,7 @@ export default function CinematicProjectGallery() {
               key={project.id}
               className={`cinema-project cinema-project--${project.id}`}
               data-cinema-project
+              data-project-active={index === 0 ? "true" : "false"}
               style={{ "--project-accent": project.accent, "--project-ambient": project.ambient, zIndex: index + 1 } as React.CSSProperties}
             >
               <div className="cinema-project-chrome" aria-hidden="true"><span>PROJECT / {String(index + 1).padStart(2, "0")}</span><i/><span>{project.temporary ? "DEVELOPMENT PREVIEW" : "PUBLISHED"}</span></div>
@@ -74,10 +82,11 @@ export default function CinematicProjectGallery() {
                 <h3>{project.displayTitle}</h3>
                 <div className="cinema-project-description"><span>{String(index + 1).padStart(2, "0")}</span><p>{project.description}</p></div>
                 <div className="cinema-project-tags">{project.technologies.map((tag) => <span key={tag}>{tag}</span>)}</div>
+                <button className="cinema-project-explore" type="button" onClick={(event) => openProject(project.id, event.currentTarget)}>EXPLORE PROJECT <span>↗</span></button>
               </div>
               <figure className="cinema-project-media">
                 <div className="cinema-project-orbit" aria-hidden="true" />
-                <Image src={project.mainMedia} alt={`${project.name} temporary project artwork`} fill sizes="(max-width: 800px) 92vw, 58vw" className="cinema-project-image" />
+                <GlitchProjectImage media={project.heroMedia} alt={`${project.displayTitle} project artwork`} sizes="(max-width: 800px) 92vw, 58vw" className="cinema-project-image" />
                 {project.temporary && <figcaption>TEMPORARY LABEL / ORIGINAL ASSET</figcaption>}
               </figure>
               <div className="cinema-project-index" aria-hidden="true">{String(index + 1).padStart(2, "0")}</div>

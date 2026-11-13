@@ -1,17 +1,17 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import Image, { type StaticImageData } from "next/image";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import sehaProjectImage from "../imgs/seha1.png";
-import drevrProjectImage from "../imgs/drevr1.png";
+import { useProjectDetails } from "./ProjectDetailsProvider";
+import GlitchProjectImage from "./GlitchProjectImage";
+import { projectHeroMedia, type ProjectHeroMedia } from "../data/projectHeroMedia";
 
-type Project = { index: string; name: string; type: string; statement: string; tags: string[]; tone: "acid" | "blue" | "mono"; ambient?: "drevr"; image?: StaticImageData };
+type Project = { id?: string; index: string; name: string; type: string; statement: string; tags: string[]; tone: "acid" | "blue" | "mono"; ambient?: "drevr"; heroMedia?: ProjectHeroMedia };
 
 const projects: Project[] = [
-  { index: "01", name: "SEHA PLUS", type: "DIGITAL HEALTH / PRODUCT SYSTEM", statement: "A focused healthcare experience designed around clarity, trust, and faster access to care.", tags: ["PRODUCT", "MOBILE", "HEALTHCARE"], tone: "acid", image: sehaProjectImage },
-  { index: "02", name: "DREVR", type: "MOBILITY / REAL-TIME PLATFORM", statement: "A real-time mobility product connecting people, routes, and decisions in one continuous flow.", tags: ["MOBILE", "REAL-TIME", "PLATFORM"], tone: "blue", ambient: "drevr", image: drevrProjectImage },
+  { id: "seha-plus", index: "01", name: "SEHA PLUS", type: "DIGITAL HEALTH / PRODUCT SYSTEM", statement: "A focused healthcare experience designed around clarity, trust, and faster access to care.", tags: ["PRODUCT", "MOBILE", "HEALTHCARE"], tone: "acid", heroMedia: projectHeroMedia["seha-plus"] },
+  { id: "drevr", index: "02", name: "DREVR", type: "MOBILITY / REAL-TIME PLATFORM", statement: "A real-time mobility product connecting people, routes, and decisions in one continuous flow.", tags: ["MOBILE", "REAL-TIME", "PLATFORM"], tone: "blue", ambient: "drevr", heroMedia: projectHeroMedia.drevr },
   { index: "03", name: "SYSTEMS", type: "SELECTED ENGINEERING / MORE TO COME", statement: "Interfaces are only the surface. The work extends into resilient APIs, operations, and product infrastructure.", tags: ["BACKEND", "DEVOPS", "ARCHITECTURE"], tone: "mono" },
 ];
 
@@ -22,8 +22,8 @@ function ProductVisual({ project }: { project: Project }) {
       <div className="visual-top"><span>{project.name}</span><i /><i /><i /></div>
       <div className="visual-canvas">
         <div className="visual-orbit" />
-        {project.image ? (
-          <Image src={project.image} alt={`${project.name} application showcase`} fill sizes="(max-width: 900px) 94vw, 58vw" className="project-showcase-image" placeholder="blur" />
+        {project.heroMedia ? (
+          <GlitchProjectImage media={project.heroMedia} alt={`${project.name} application showcase`} sizes="(max-width: 900px) 94vw, 58vw" className="project-showcase-image" />
         ) : (<>
         <div className="visual-phone">
           <div className="phone-island" /><div className="phone-title">{title}</div>
@@ -41,6 +41,7 @@ function ProductVisual({ project }: { project: Project }) {
 }
 
 export default function ProjectsShowcase() {
+  const { openProject } = useProjectDetails();
   const root = useRef<HTMLElement>(null);
   const stage = useRef<HTMLDivElement>(null);
   const track = useRef<HTMLDivElement>(null);
@@ -105,6 +106,7 @@ export default function ProjectsShowcase() {
                 <div className="project-kicker" data-project-reveal><span>{project.index}</span>{project.type}</div>
                 <h3 data-project-reveal>{project.name}</h3><p data-project-reveal>{project.statement}</p>
                 <div className="project-tags" data-project-reveal>{project.tags.map((tag) => <span key={tag}>{tag}</span>)}</div>
+                {project.id && <button className="project-explore" type="button" data-project-reveal onClick={(event) => openProject(project.id!, event.currentTarget)}>EXPLORE PROJECT <span>↗</span></button>}
                 <div className="project-index" aria-hidden="true">{project.index}</div>
               </div>
               <div className="project-art" data-project-reveal><ProductVisual project={project} /></div>
