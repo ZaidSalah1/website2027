@@ -1,14 +1,17 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import Image, { type StaticImageData } from "next/image";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import sehaProjectImage from "../imgs/seha1.png";
+import drevrProjectImage from "../imgs/drevr1.png";
 
-type Project = { index: string; name: string; type: string; statement: string; tags: string[]; tone: "acid" | "blue" | "mono"; ambient?: "drevr" };
+type Project = { index: string; name: string; type: string; statement: string; tags: string[]; tone: "acid" | "blue" | "mono"; ambient?: "drevr"; image?: StaticImageData };
 
 const projects: Project[] = [
-  { index: "01", name: "SEHA PLUS", type: "DIGITAL HEALTH / PRODUCT SYSTEM", statement: "A focused healthcare experience designed around clarity, trust, and faster access to care.", tags: ["PRODUCT", "MOBILE", "HEALTHCARE"], tone: "acid" },
-  { index: "02", name: "DREVR", type: "MOBILITY / REAL-TIME PLATFORM", statement: "A real-time mobility product connecting people, routes, and decisions in one continuous flow.", tags: ["MOBILE", "REAL-TIME", "PLATFORM"], tone: "blue", ambient: "drevr" },
+  { index: "01", name: "SEHA PLUS", type: "DIGITAL HEALTH / PRODUCT SYSTEM", statement: "A focused healthcare experience designed around clarity, trust, and faster access to care.", tags: ["PRODUCT", "MOBILE", "HEALTHCARE"], tone: "acid", image: sehaProjectImage },
+  { index: "02", name: "DREVR", type: "MOBILITY / REAL-TIME PLATFORM", statement: "A real-time mobility product connecting people, routes, and decisions in one continuous flow.", tags: ["MOBILE", "REAL-TIME", "PLATFORM"], tone: "blue", ambient: "drevr", image: drevrProjectImage },
   { index: "03", name: "SYSTEMS", type: "SELECTED ENGINEERING / MORE TO COME", statement: "Interfaces are only the surface. The work extends into resilient APIs, operations, and product infrastructure.", tags: ["BACKEND", "DEVOPS", "ARCHITECTURE"], tone: "mono" },
 ];
 
@@ -19,6 +22,9 @@ function ProductVisual({ project }: { project: Project }) {
       <div className="visual-top"><span>{project.name}</span><i /><i /><i /></div>
       <div className="visual-canvas">
         <div className="visual-orbit" />
+        {project.image ? (
+          <Image src={project.image} alt={`${project.name} application showcase`} fill sizes="(max-width: 900px) 94vw, 58vw" className="project-showcase-image" placeholder="blur" />
+        ) : (<>
         <div className="visual-phone">
           <div className="phone-island" /><div className="phone-title">{title}</div>
           <div className="phone-card phone-card--large" /><div className="phone-row"><span /><span /></div>
@@ -27,6 +33,7 @@ function ProductVisual({ project }: { project: Project }) {
         <div className="visual-data data-a"><small>STATUS</small><strong>ACTIVE</strong></div>
         <div className="visual-data data-b"><small>SIGNAL</small><strong>99.9</strong></div>
         <div className="visual-cross">+</div>
+        </>)}
       </div>
       <div className="visual-footer"><span>CASE / {project.index}</span><span>ZAID.SYSTEMS®</span></div>
     </div>

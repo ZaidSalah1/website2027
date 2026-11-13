@@ -58,11 +58,7 @@ export default function CinematicProjectGallery() {
 
   return (
     <section ref={root} id="cinema-gallery" className="cinema-gallery" aria-labelledby="cinema-gallery-title">
-      <header className="cinema-gallery-intro">
-        <div><span>03 / SOFTWARE EXHIBITION</span><span>NATIVE VERTICAL STORY</span></div>
-        <h2 id="cinema-gallery-title">SYSTEMS IN<br/><em>FOCUS.</em></h2>
-        <p>One stage. A changing point of view. Existing product artwork is given room to lead while final case-study details remain deliberately unclaimed.</p>
-      </header>
+      <h2 id="cinema-gallery-title" className="sr-only">Cinematic software project gallery</h2>
       <div ref={stage} className="cinema-gallery-stage">
           <div className="cinema-gallery-progress" aria-hidden="true"><span>01</span><i><b /></i><span>{String(visibleSoftwareProjects.length).padStart(2, "0")}</span></div>
           {visibleSoftwareProjects.map((project, index) => (
