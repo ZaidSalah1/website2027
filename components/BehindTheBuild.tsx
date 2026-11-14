@@ -93,11 +93,11 @@ export default function BehindTheBuild() {
       media.add("(prefers-reduced-motion: no-preference)", () => {
         const syncViewport=()=>root.current?.style.setProperty("--story-viewport",`${stage.current?.clientWidth??innerWidth}px`);
         syncViewport();
-        const distance=()=>{const panels=track.current?.querySelectorAll<HTMLElement>(".build-chapter");const last=panels?.[panels.length-1];return Math.max(0,(last?.offsetLeft??0)+(last?.offsetWidth??0)-(stage.current?.clientWidth??innerWidth))}; const travelShare=.9;
-        const timeline=gsap.timeline({ defaults:{ease:"none"}, scrollTrigger:{ id:"behind-build-horizontal", trigger:stage.current, start:"top top", end:()=>`+=${distance()/travelShare}`, pin:true, pinSpacing:true, scrub:1.05, anticipatePin:1, invalidateOnRefresh:true, onRefreshInit:syncViewport, onUpdate:self=>root.current?.style.setProperty("--build-progress",`${self.progress}`) }});
+        const distance=()=>{const panels=track.current?.querySelectorAll<HTMLElement>(".build-chapter");const last=panels?.[panels.length-1];return Math.max(0,(last?.offsetLeft??0)+(last?.offsetWidth??0)-(stage.current?.clientWidth??innerWidth))}; const travelShare=.9; const mobile=matchMedia("(max-width:900px)").matches;
+        const timeline=gsap.timeline({ defaults:{ease:"none"}, scrollTrigger:{ id:"behind-build-horizontal", trigger:stage.current, start:"top top", end:()=>`+=${distance()/travelShare}`, pin:true, pinSpacing:true, scrub:mobile?.32:1.05, anticipatePin:mobile?.5:1, invalidateOnRefresh:true, onRefreshInit:syncViewport, onUpdate:self=>root.current?.style.setProperty("--build-progress",`${self.progress}`) }});
         timeline.fromTo(".build-stage-chrome,.build-stage-footer",{opacity:.3},{opacity:1,duration:.05,ease:"power1.out"})
           .fromTo(".build-chapter:first-child .build-copy,.build-chapter:first-child .build-visual",{scale:.987},{scale:1,duration:.05,ease:"power1.out"},0)
-          .to(track.current,{x:()=>-distance(),duration:travelShare},.05)
+          .to(track.current,{x:()=>-distance(),duration:travelShare,force3D:true},.05)
           .to(".build-chapter:last-child .build-copy,.build-chapter:last-child .build-visual",{y:-8,duration:.05,ease:"power1.inOut"},.95)
           .to(".build-stage-chrome,.build-stage-footer",{opacity:.38,duration:.05},.95);
         gsap.utils.toArray<HTMLElement>(".build-chapter").forEach(panel=>{

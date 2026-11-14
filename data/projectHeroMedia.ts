@@ -25,8 +25,8 @@ export type ProjectHeroMedia = {
 export const projectHeroMedia: Record<string, ProjectHeroMedia> = {
   "seha-plus": { images: [seha1, seha2,seha3], transition: "glitch", intervalMs: 2500, temporaryTestImages: true},
   drevr: { images: [drevr1], transition: "static" },
-  "restaurant-preview": { images: [foodApo, foodApo1], transition: "glitch", intervalMs: 4500, temporaryTestImages: true },
+  "restaurant-preview": { images: [foodApo,], transition: "glitch", intervalMs: 4500, temporaryTestImages: true },
   "commerce-preview": { images: [store1, store2], transition: "glitch", intervalMs: 4700, temporaryTestImages: true },
-  "rental-preview": { images: [carRental, carRental1], transition: "glitch", intervalMs: 4900, temporaryTestImages: true },
+  "rental-preview": { images: [carRental,], transition: "glitch", intervalMs: 4900, temporaryTestImages: true },
   athkar: { images: [athkar1], transition: "static" },
 };

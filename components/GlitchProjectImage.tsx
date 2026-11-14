@@ -4,12 +4,13 @@ import Image, { getImageProps } from "next/image";
 import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import type { ProjectHeroMedia } from "../data/projectHeroMedia";
+import type { StaticImageData } from "next/image";
 
 const preloadCache = new Map<string, Promise<void>>();
 
-export function preloadProjectImage(source: ProjectHeroMedia["images"][number], sizes: string) {
+export function preloadProjectImage(source: StaticImageData | string, sizes: string) {
   if (typeof window === "undefined") return Promise.resolve();
-  const key = `${source.src}|${sizes}`;
+  const key = `${typeof source === "string" ? source : source.src}|${sizes}`;
   const cached = preloadCache.get(key);
   if (cached) return cached;
   const promise = new Promise<void>((resolve) => {
@@ -18,9 +19,10 @@ export function preloadProjectImage(source: ProjectHeroMedia["images"][number], 
     image.decoding = "async";
     image.sizes = props.sizes ?? sizes;
     if (props.srcSet) image.srcset = props.srcSet;
-    image.src = props.src;
     image.onload = () => image.decode().catch(() => undefined).finally(resolve);
     image.onerror = () => resolve();
+    image.src = props.src;
+    if (image.complete && image.naturalWidth > 0) image.decode().catch(() => undefined).finally(resolve);
   });
   preloadCache.set(key, promise);
   return promise;
@@ -136,7 +138,7 @@ export default function GlitchProjectImage({ media, alt, className, sizes, criti
   const incomingImage = media.images[incoming] ?? currentImage;
   return <div ref={root} className={`glitch-project-image${currentReady ? " is-ready" : " is-loading"}`} data-transition={animated ? "glitch" : "static"} data-image-index={current}>
     <span className="glitch-placeholder" aria-hidden="true" />
-    <Image src={currentImage} alt={alt} fill sizes={sizes} className={`${className} glitch-current${currentReady ? " is-ready" : ""}`} placeholder="empty" loading={critical ? "eager" : "lazy"} fetchPriority={critical ? "high" : "auto"} decoding="async" onLoad={(event) => event.currentTarget.decode().catch(() => undefined).finally(() => setCurrentReady(true))} />
+    <Image src={currentImage} alt={alt} fill sizes={sizes} className={`${className} glitch-current${currentReady ? " is-ready" : ""}`} placeholder="empty" loading={critical ? "eager" : "lazy"} fetchPriority={critical ? "high" : "auto"} decoding="async" onLoad={(event) => { const image = event.currentTarget; image.decode().catch(() => undefined).finally(() => setCurrentReady(true)); }} />
     {animated && <>
       <Image src={incomingImage} alt="" aria-hidden fill sizes={sizes} className={`${className} glitch-incoming`} placeholder="empty" loading="lazy" decoding="async" />
       {["top", "middle", "bottom"].map((slice) => <Image key={slice} src={incomingImage} alt="" aria-hidden fill sizes={sizes} className={`${className} glitch-slice glitch-slice--${slice}`} placeholder="empty" loading="lazy" decoding="async" />)}

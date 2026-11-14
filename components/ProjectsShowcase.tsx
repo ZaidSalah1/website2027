@@ -48,15 +48,19 @@ export default function ProjectsShowcase() {
   const [loadedMedia, setLoadedMedia] = useState(() => new Set([0]));
 
   useEffect(() => {
-    if (!root.current || !projects[1].heroMedia) return;
+    if (!root.current || !projects[0].heroMedia || !projects[1].heroMedia) return;
+    let cancelled = false;
     const observer = new IntersectionObserver(([entry]) => {
       if (!entry.isIntersecting) return;
-      setLoadedMedia((current) => new Set(current).add(1));
-      void preloadProjectImage(projects[1].heroMedia!.images[0], "(max-width: 900px) 94vw, 58vw");
+      void preloadProjectImage(projects[0].heroMedia!.images[0], "(max-width: 900px) 94vw, 58vw").then(() => {
+        if (cancelled) return;
+        setLoadedMedia((current) => new Set(current).add(1));
+        return preloadProjectImage(projects[1].heroMedia!.images[0], "(max-width: 900px) 94vw, 58vw");
+      });
       observer.disconnect();
-    }, { rootMargin: "0px 0px 70% 0px" });
+    }, { rootMargin: "150% 0px 150% 0px" });
     observer.observe(root.current);
-    return () => observer.disconnect();
+    return () => { cancelled = true; observer.disconnect(); };
   }, []);
 
   useEffect(() => {
@@ -73,22 +77,22 @@ export default function ProjectsShowcase() {
           return Math.max(0, (last?.offsetLeft ?? 0) + (last?.offsetWidth ?? 0) - (stage.current?.clientWidth ?? window.innerWidth));
         };
         const travelShare = 0.88;
+        const mobile = window.matchMedia("(max-width: 900px)").matches;
         const timeline = gsap.timeline({
           defaults: { ease: "none" },
           scrollTrigger: {
             id: "projects-horizontal", trigger: stage.current, start: "top top", end: () => `+=${distance() / travelShare}`,
-            pin: true, pinSpacing: true, scrub: 1.05, anticipatePin: 1, invalidateOnRefresh: true,
+            pin: true, pinSpacing: true, scrub: mobile ? .32 : 1.05, anticipatePin: mobile ? .5 : 1, invalidateOnRefresh: true,
             onRefreshInit: syncViewport,
             onUpdate: (self) => {
               root.current?.style.setProperty("--projects-progress", `${self.progress}`);
-              if (self.progress > .16) setLoadedMedia((current) => current.has(1) ? current : new Set(current).add(1));
             },
           },
         });
         timeline
           .fromTo(".projects-stage-chrome, .projects-stage-footer", { opacity: 0.35 }, { opacity: 1, duration: 0.06, ease: "power1.out" })
           .fromTo(".project-panel:first-child .project-copy, .project-panel:first-child .project-art", { scale: 0.985 }, { scale: 1, duration: 0.06, ease: "power1.out" }, 0)
-          .to(track.current, { x: () => -distance(), duration: travelShare, ease: "none" }, 0.06)
+          .to(track.current, { x: () => -distance(), duration: travelShare, ease: "none", force3D: true }, 0.06)
           .to(".project-panel:last-child .project-copy, .project-panel:last-child .project-art", { y: -8, duration: 0.06, ease: "power1.inOut" }, 0.94)
           .to(".projects-stage-chrome, .projects-stage-footer", { opacity: 0.42, duration: 0.06, ease: "power1.inOut" }, 0.94);
         gsap.utils.toArray<HTMLElement>(".project-panel").forEach((panel) => {
@@ -125,7 +129,7 @@ export default function ProjectsShowcase() {
                 {project.id && <button className="project-explore" type="button" data-project-reveal onClick={(event) => openProject(project.id!, event.currentTarget)}>EXPLORE PROJECT <span>↗</span></button>}
                 <div className="project-index" aria-hidden="true">{project.index}</div>
               </div>
-              <div className="project-art" data-project-reveal><ProductVisual project={project} critical={projectIndex === 0} enabled={loadedMedia.has(projectIndex)} /></div>
+              <div className="project-art" data-project-reveal><ProductVisual project={project} critical={false} enabled={loadedMedia.has(projectIndex)} /></div>
             </article>
           ))}
         </div>

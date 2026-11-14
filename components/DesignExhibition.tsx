@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { preloadProjectImage } from "./GlitchProjectImage";
 
 const nikeVideoSource = "/imgs/nike.mp4";
 
@@ -17,6 +18,25 @@ export default function DesignExhibition() {
   const root = useRef<HTMLElement>(null);
   const video = useRef<HTMLVideoElement>(null);
   const [videoFailed, setVideoFailed] = useState(false);
+
+  useEffect(() => {
+    if (!root.current) return;
+    let cancelled = false;
+    const gallery = root.current.querySelector(".design-gallery-grid");
+    if (!gallery) return;
+    const observer = new IntersectionObserver(([entry]) => {
+      if (!entry.isIntersecting) return;
+      void (async () => {
+        for (const project of designProjects) {
+          if (cancelled) return;
+          await preloadProjectImage(project.image, "(max-width: 800px) 92vw, 48vw");
+        }
+      })();
+      observer.disconnect();
+    }, { rootMargin: "120% 0px" });
+    observer.observe(gallery);
+    return () => { cancelled = true; observer.disconnect(); };
+  }, []);
 
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger);

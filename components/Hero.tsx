@@ -17,12 +17,16 @@ export default function Hero() {
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const context = gsap.context(() => {
       if (reduce) return;
-      const intro = gsap.timeline({ defaults: { ease: "power3.out" } });
-      intro
-        .from("[data-intro='chrome']", { opacity: 0, y: -12, duration: .6, stagger: .08 })
-        .from("[data-intro='title']", { yPercent: 105, duration: 1.05, stagger: .09 }, "-=.22")
-        .from("[data-intro='portrait']", { yPercent: 12, opacity: 0, scale: .96, duration: 1.15 }, "-=.85")
-        .from("[data-intro='panel']", { opacity: 0, y: 24, duration: .72, stagger: .12 }, "-=.55");
+      const playIntro = () => {
+        const intro = gsap.timeline({ defaults: { ease: "power3.out" } });
+        intro
+          .from("[data-intro='chrome']", { opacity: 0, y: -12, duration: .6, stagger: .08 })
+          .from("[data-intro='title']", { yPercent: 105, duration: 1.05, stagger: .09 }, "-=.22")
+          .from("[data-intro='portrait']", { yPercent: 12, opacity: 0, scale: .96, duration: 1.15 }, "-=.85")
+          .from("[data-intro='panel']", { opacity: 0, y: 24, duration: .72, stagger: .12 }, "-=.55");
+      };
+      if (document.getElementById("site-preloader")) window.addEventListener("portfolio:ready", playIntro, { once: true });
+      else playIntro();
 
       gsap.timeline({
         scrollTrigger: { trigger: root.current, start: "top top", end: "bottom top", scrub: .7 },
@@ -40,7 +44,7 @@ export default function Hero() {
         gsap.to("[data-parallax='ui']", { x: x * -7, y: y * -4, duration: .9, ease: "power2.out" });
       };
       window.addEventListener("pointermove", move);
-      return () => window.removeEventListener("pointermove", move);
+      return () => { window.removeEventListener("pointermove", move); window.removeEventListener("portfolio:ready", playIntro); };
     }, root);
     return () => context.revert();
   }, []);
@@ -72,6 +76,7 @@ export default function Hero() {
           fill
           priority
           sizes="(max-width: 800px) 90vw, 43vw"
+          data-critical-asset="hero-portrait"
         />
       </div>
 

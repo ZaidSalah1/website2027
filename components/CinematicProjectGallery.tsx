@@ -11,15 +11,19 @@ export default function CinematicProjectGallery() {
   const { openProject } = useProjectDetails();
   const root = useRef<HTMLElement>(null);
   const stage = useRef<HTMLDivElement>(null);
-  const [loadedMedia, setLoadedMedia] = useState(() => new Set([0, 1]));
+  const [loadedMedia, setLoadedMedia] = useState(() => new Set([0]));
 
   useEffect(() => {
     if (!root.current) return;
     const observer = new IntersectionObserver(([entry]) => {
       if (!entry.isIntersecting) return;
-      void preloadProjectImage(visibleSoftwareProjects[0].heroMedia.images[0], "(max-width: 800px) 92vw, 58vw");
+      void preloadProjectImage(visibleSoftwareProjects[0].heroMedia.images[0], "(max-width: 800px) 92vw, 58vw").then(() => {
+        if (!visibleSoftwareProjects[1]) return;
+        setLoadedMedia((current) => new Set(current).add(1));
+        return preloadProjectImage(visibleSoftwareProjects[1].heroMedia.images[0], "(max-width: 800px) 92vw, 58vw");
+      });
       observer.disconnect();
-    }, { rootMargin: "100% 0px" });
+    }, { rootMargin: "160% 0px" });
     observer.observe(root.current);
     return () => observer.disconnect();
   }, []);
@@ -49,9 +53,10 @@ export default function CinematicProjectGallery() {
             invalidateOnRefresh: true,
             onUpdate: (self) => {
               stage.current?.style.setProperty("--cinema-progress", `${self.progress}`);
-              const activeIndex = Math.min(panels.length - 1, Math.round(self.progress * (panels.length - 1)));
+              const position = self.progress * (panels.length - 1);
+              const activeIndex = Math.min(panels.length - 1, Math.round(position));
               panels.forEach((panel, panelIndex) => panel.dataset.projectActive = panelIndex === activeIndex ? "true" : "false");
-              const nextIndex = Math.min(panels.length - 1, activeIndex + 1);
+              const nextIndex = Math.min(panels.length - 1, Math.ceil(position + .55));
               setLoadedMedia((current) => current.has(nextIndex) ? current : new Set(current).add(nextIndex));
               void preloadProjectImage(visibleSoftwareProjects[nextIndex].heroMedia.images[0], "(max-width: 800px) 92vw, 58vw");
             },
