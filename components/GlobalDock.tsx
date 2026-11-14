@@ -6,8 +6,8 @@ import { BriefcaseBusiness, Cpu, Home, Mail, Workflow, type LucideIcon } from "l
 const destinations: ReadonlyArray<{ id: string; label: string; icon: LucideIcon }> = [
   { id: "home", label: "HOME", icon: Home },
   { id: "projects", label: "WORK", icon: BriefcaseBusiness },
-  { id: "skills", label: "SKILLS", icon: Cpu },
   { id: "behind-build", label: "PROCESS", icon: Workflow },
+  { id: "skills", label: "SKILLS", icon: Cpu },
   { id: "contact", label: "CONTACT", icon: Mail },
 ];
 

@@ -6,7 +6,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 const navigation = [
-  ["HOME", "#"], ["ABOUT", "#behind-build"], ["SKILLS", "#skills"], ["PROJECTS", "#projects"], ["CONTACT", "#contact"],
+  ["HOME", "#"], ["PROJECTS", "#projects"], ["PROCESS", "#behind-build"], ["SKILLS", "#skills"], ["CONTACT", "#contact"],
 ];
 const socials = [
   ["LINKEDIN", "https://www.linkedin.com/in/your-username"],

@@ -5,6 +5,8 @@ import Image from "next/image";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { preloadProjectImage } from "./GlitchProjectImage";
+import carRentalOff from "../imgs/carRentWeb1.png";
+import carRentalOn from "../imgs/carRentWeb2.png";
 
 const nikeVideoSource = "/imgs/nike.mp4";
 
@@ -17,7 +19,11 @@ const designProjects = [
 export default function DesignExhibition() {
   const root = useRef<HTMLElement>(null);
   const video = useRef<HTMLVideoElement>(null);
+  const rental = useRef<HTMLElement>(null);
   const [videoFailed, setVideoFailed] = useState(false);
+  const [rentalVisible, setRentalVisible] = useState(false);
+  const [rentalFramesReady, setRentalFramesReady] = useState(false);
+  const [rentalFrame, setRentalFrame] = useState(0);
 
   useEffect(() => {
     if (!root.current) return;
@@ -44,6 +50,7 @@ export default function DesignExhibition() {
       if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
       gsap.fromTo(".beyond-code-title span", { yPercent: 110 }, { yPercent: 0, stagger: .08, ease: "power3.out", scrollTrigger: { trigger: ".beyond-code", start: "top 72%", end: "top 30%", scrub: 1 } });
       gsap.fromTo(".nike-video-frame", { y: 44, opacity: 0, scale: .975 }, { y: 0, opacity: 1, scale: 1, ease: "power3.out", scrollTrigger: { trigger: ".nike-stage", start: "top 72%", end: "top 36%", scrub: .9 } });
+      gsap.fromTo(".car-rental-frame", { y: 30, opacity: 0 }, { y: 0, opacity: 1, ease: "power3.out", scrollTrigger: { trigger: ".car-rental-study", start: "top 82%", end: "top 52%", scrub: .75 } });
       gsap.fromTo("[data-design-project]", { y: 48, opacity: 0, scale: .98 }, { y: 0, opacity: 1, scale: 1, stagger: .12, ease: "power3.out", scrollTrigger: { trigger: ".design-gallery-grid", start: "top 82%", end: "top 42%", scrub: .85 } });
       gsap.utils.toArray<HTMLElement>("[data-design-project]").forEach((project) => {
         gsap.fromTo(project.querySelector(".design-gallery-image"), { yPercent: 4, scale: 1.025 }, { yPercent: -3, scale: 1, ease: "none", scrollTrigger: { trigger: project, start: "top bottom", end: "bottom top", scrub: 1 } });
@@ -51,6 +58,38 @@ export default function DesignExhibition() {
     }, root);
     return () => context.revert();
   }, []);
+
+  useEffect(() => {
+    const section = rental.current;
+    if (!section) return;
+    const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const syncVisibility = (visible: boolean) => setRentalVisible(visible && !document.hidden && !reduced);
+    const observer = new IntersectionObserver(([entry]) => syncVisibility(entry.isIntersecting), { threshold: .25 });
+    const onVisibility = () => syncVisibility(Boolean(section.getBoundingClientRect().bottom > 0 && section.getBoundingClientRect().top < innerHeight));
+    observer.observe(section);
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => { observer.disconnect(); document.removeEventListener("visibilitychange", onVisibility); };
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    void Promise.all([carRentalOff.src, carRentalOn.src].map(async (src) => {
+      const image = new window.Image();
+      image.src = src;
+      if (!image.complete) await new Promise<void>((resolve, reject) => {
+        image.onload = () => resolve();
+        image.onerror = () => reject(new Error(`Unable to preload ${src}`));
+      });
+      await image.decode();
+    })).then(() => { if (!cancelled) setRentalFramesReady(true); }).catch(() => { if (!cancelled) setRentalFramesReady(false); });
+    return () => { cancelled = true; };
+  }, []);
+
+  useEffect(() => {
+    if (!rentalVisible || !rentalFramesReady) return;
+    const interval = window.setInterval(() => setRentalFrame((frame) => frame === 0 ? 1 : 0), 1000);
+    return () => window.clearInterval(interval);
+  }, [rentalVisible, rentalFramesReady]);
 
   useEffect(() => {
     if (!video.current) return;
@@ -78,6 +117,21 @@ export default function DesignExhibition() {
           {videoFailed && <p className="nike-video-fallback" role="status">The Nike concept video could not be played in this browser.</p>}
         </div>
         <div className="nike-stage-copy"><div><p>01 / RECORDED MOTION CONCEPT</p><h3 id="nike-title">NIKE <span>INTERFACE.</span></h3></div><p>Original animation / autoplaying silently when visible.</p></div>
+      </article>
+
+      <article ref={rental} className="car-rental-study" aria-labelledby="car-rental-title">
+        <header><span>02 / WEB UI / UX CONCEPT</span><span>LIGHT STUDY / AUTO</span></header>
+        <div className="car-rental-frame">
+          <Image
+            src={rentalFrame === 0 ? carRentalOff : carRentalOn}
+            alt="Car Rental Website Design shown across desktop and tablet mockups"
+            fill
+            unoptimized
+            sizes="(max-width: 900px) 94vw, 76vw"
+            className="car-rental-image"
+          />
+        </div>
+        <div className="car-rental-copy"><p>WEB INTERFACE / AUTOMOTIVE</p><h3 id="car-rental-title">CAR RENTAL<br/><span>WEBSITE DESIGN</span></h3></div>
       </article>
 
       <div className="design-gallery-grid" aria-label="UI and UX design concepts">

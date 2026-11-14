@@ -9,6 +9,7 @@ import CinematicProjectGallery from "../components/CinematicProjectGallery";
 import DesignExhibition from "../components/DesignExhibition";
 import ProjectDetailsProvider from "../components/ProjectDetailsProvider";
 import SitePreloader from "../components/SitePreloader";
+import ImpactStatement from "../components/ImpactStatement";
 
 export default function Home() {
   return (
@@ -19,8 +20,9 @@ export default function Home() {
       <CinematicProjectGallery />
       <DesignExhibition />
       <ReadyTransition />
-      <TechMatrix />
       <BehindTheBuild />
+      <TechMatrix />
+      <ImpactStatement />
       <ContactConclusion />
       <GlobalDock />
     </main></ProjectDetailsProvider>

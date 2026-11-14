@@ -35,7 +35,7 @@ export default function ReadyTransition() {
   return (
     <section ref={root} className="ready-transition" aria-labelledby="ready-title">
       <div ref={stage} className="ready-stage">
-        <div className="ready-meta ready-meta--top"><span>03 / SYSTEM CHECK</span><span>NEXT: TECH MATRIX</span></div>
+        <div className="ready-meta ready-meta--top"><span>03 / SYSTEM CHECK</span><span>NEXT: PROCESS</span></div>
         <div className="ready-center">
           <p className="ready-meta">WHAT&apos;S NEXT?</p>
           <h2 className="ready-word" id="ready-title">READY?</h2>

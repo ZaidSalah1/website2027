@@ -126,12 +126,11 @@ export default function BehindTheBuild() {
   },[]);
 
   return <section ref={root} id="behind-build" className="behind-build" aria-labelledby="build-heading">
-    <div className="build-prelude"><div><p>05 / PROCESS</p><span>SECOND HORIZONTAL CHAPTER</span></div><h2 id="build-heading">BEHIND<br/><em>THE BUILD.</em></h2><p>Four connected stages. One end-to-end mindset—from the first question to a product people can use.</p><div className="build-axis">VERTICAL <span>↓</span> HORIZONTAL <span>→</span></div></div>
+    <div className="build-prelude"><div><p>04 / PROCESS</p><span>SECOND HORIZONTAL CHAPTER</span></div><h2 id="build-heading">BEHIND<br/><em>THE BUILD.</em></h2><p>Four connected stages. One end-to-end mindset—from the first question to a product people can use.</p><div className="build-axis">VERTICAL <span>↓</span> HORIZONTAL <span>→</span></div></div>
     <div ref={stage} className="build-stage">
       <div className="build-stage-chrome" aria-hidden="true"><span>BEHIND THE BUILD / 04</span><span className="build-progress"><i/></span><span>IDEA → LAUNCH</span></div>
       <div ref={track} className="build-track" role="region" aria-label="Behind the Build chapters. Continue scrolling vertically to move through the process." tabIndex={0}>{chapters.map(chapter=><BuildChapter chapter={chapter} key={chapter.index}/>)}</div>
       <div className="build-stage-footer" aria-hidden="true"><span>USE VERTICAL SCROLL</span><b>→</b><span>PROCESS / X</span></div>
     </div>
-    <div className="build-review-stop"><p>END-TO-END / COMPLETE</p><h2>FROM IDEA<br/><span>TO IMPACT.</span></h2><small>NEXT / LET&apos;S CONNECT</small></div>
   </section>;
 }

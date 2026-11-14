@@ -62,9 +62,8 @@ export default function Hero() {
       <div className="back-word" data-layer="back" aria-hidden="true">ENGINEER</div>
       <div className="name-lockup" id="hero-title">
         <div className="title-mask" data-layer="title"><h1 data-intro="title">ZAID SALAH</h1></div>
-        <div className="hero-manifesto" aria-label="Engineering digital products">
-          <span data-text="ENGINEERING">ENGINEERING</span>
-          <span data-text="DIGITAL PRODUCTS">DIGITAL PRODUCTS</span>
+        <div className="hero-manifesto" aria-label="Building products">
+          <span data-text="BUILDING PRODUCTS.">BUILDING PRODUCTS.</span>
         </div>
       </div>
 
