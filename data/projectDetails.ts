@@ -1,7 +1,7 @@
 import type { StaticImageData } from "next/image";
-import seha1 from "../imgs/seha1.png"; import seha2 from "../imgs/seha2.png"; import seha3 from "../imgs/seha3.png"; import seha22 from "../imgs/seha22.png";
-import drevr1 from "../imgs/drevr1.png"; import athkar1 from "../imgs/athkar1.png"; import athkar2 from "../imgs/athkar2.png";
-import food1 from "../imgs/foodApo.png"; import food2 from "../imgs/foodApo1.png"; import store1 from "../imgs/store1.png"; import store2 from "../imgs/store2.png"; import car1 from "../imgs/carRental.png"; import car2 from "../imgs/carRental1.png";
+import seha1 from "../imgs/optimized/seha1.webp"; import seha2 from "../imgs/optimized/seha2.webp"; import seha3 from "../imgs/optimized/seha3.webp"; import seha22 from "../imgs/optimized/seha22.webp";
+import drevr1 from "../imgs/optimized/drevr1.webp"; import athkar1 from "../imgs/optimized/athkar1.webp"; import athkar2 from "../imgs/optimized/athkar2.webp";
+import food1 from "../imgs/optimized/foodApo.webp"; import food2 from "../imgs/optimized/foodApo1.webp"; import store1 from "../imgs/optimized/store1.webp"; import store2 from "../imgs/optimized/store2.webp"; import car1 from "../imgs/optimized/carRental.webp"; import car2 from "../imgs/optimized/carRental1.webp";
 
 export type ProjectScreenshot={src:StaticImageData;alt:string;caption?:string;kind:"screenshot"|"presentation"};
 export type ProjectScreenshotGroup={id:string;label:string;screenshots:ProjectScreenshot[]};

@@ -1,14 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { BriefcaseBusiness, Cpu, Home, Mail, Workflow, type LucideIcon } from "lucide-react";
 
-const destinations = [
-  { id: "home", label: "HOME", short: "H" },
-  { id: "projects", label: "WORK", short: "W" },
-  { id: "skills", label: "SKILLS", short: "S" },
-  { id: "behind-build", label: "PROCESS", short: "P" },
-  { id: "contact", label: "CONTACT", short: "C" },
-] as const;
+const destinations: ReadonlyArray<{ id: string; label: string; icon: LucideIcon }> = [
+  { id: "home", label: "HOME", icon: Home },
+  { id: "projects", label: "WORK", icon: BriefcaseBusiness },
+  { id: "skills", label: "SKILLS", icon: Cpu },
+  { id: "behind-build", label: "PROCESS", icon: Workflow },
+  { id: "contact", label: "CONTACT", icon: Mail },
+];
 
 export default function GlobalDock() {
   const [active, setActive] = useState<string>("home");
@@ -39,21 +40,24 @@ export default function GlobalDock() {
   }, []);
 
   return (
-    <nav className="dock global-dock" aria-label="Primary navigation">
-      {destinations.map((destination, index) => (
-        <a
-          key={destination.id}
-          className={active === destination.id ? "active" : undefined}
-          href={`#${destination.id}`}
-          aria-current={active === destination.id ? "location" : undefined}
-          aria-label={`Go to ${destination.label.toLowerCase()}`}
-        >
-          <span className="dock-index" aria-hidden="true">0{index + 1}</span>
-          <span className="dock-label">{destination.label}</span>
-          <span className="dock-short" aria-hidden="true">{destination.short}</span>
-        </a>
-      ))}
-      <span className="dock-status" aria-hidden="true">{String(destinations.findIndex((item) => item.id === active) + 1).padStart(2, "0")} / 05</span>
+    <nav className="dock global-dock" aria-label="Primary navigation" style={{ "--dock-active": destinations.findIndex((item) => item.id === active) } as React.CSSProperties}>
+      <span className="dock-active-pill" aria-hidden="true" />
+      {destinations.map((destination) => {
+        const Icon = destination.icon;
+        const isActive = active === destination.id;
+        return (
+          <a
+            key={destination.id}
+            className={isActive ? "active" : undefined}
+            href={`#${destination.id}`}
+            aria-current={isActive ? "location" : undefined}
+            aria-label={`Go to ${destination.label.toLowerCase()}`}
+          >
+            <Icon className="dock-icon" size={14} strokeWidth={1.75} aria-hidden="true" />
+            <span className="dock-label">{destination.label}</span>
+          </a>
+        );
+      })}
     </nav>
   );
 }

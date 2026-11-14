@@ -1,16 +1,28 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { visibleSoftwareProjects } from "../data/softwareProjects";
 import { useProjectDetails } from "./ProjectDetailsProvider";
-import GlitchProjectImage from "./GlitchProjectImage";
+import GlitchProjectImage, { preloadProjectImage } from "./GlitchProjectImage";
 
 export default function CinematicProjectGallery() {
   const { openProject } = useProjectDetails();
   const root = useRef<HTMLElement>(null);
   const stage = useRef<HTMLDivElement>(null);
+  const [loadedMedia, setLoadedMedia] = useState(() => new Set([0, 1]));
+
+  useEffect(() => {
+    if (!root.current) return;
+    const observer = new IntersectionObserver(([entry]) => {
+      if (!entry.isIntersecting) return;
+      void preloadProjectImage(visibleSoftwareProjects[0].heroMedia.images[0], "(max-width: 800px) 92vw, 58vw");
+      observer.disconnect();
+    }, { rootMargin: "100% 0px" });
+    observer.observe(root.current);
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
@@ -39,6 +51,9 @@ export default function CinematicProjectGallery() {
               stage.current?.style.setProperty("--cinema-progress", `${self.progress}`);
               const activeIndex = Math.min(panels.length - 1, Math.round(self.progress * (panels.length - 1)));
               panels.forEach((panel, panelIndex) => panel.dataset.projectActive = panelIndex === activeIndex ? "true" : "false");
+              const nextIndex = Math.min(panels.length - 1, activeIndex + 1);
+              setLoadedMedia((current) => current.has(nextIndex) ? current : new Set(current).add(nextIndex));
+              void preloadProjectImage(visibleSoftwareProjects[nextIndex].heroMedia.images[0], "(max-width: 800px) 92vw, 58vw");
             },
           },
         });
@@ -86,7 +101,7 @@ export default function CinematicProjectGallery() {
               </div>
               <figure className="cinema-project-media">
                 <div className="cinema-project-orbit" aria-hidden="true" />
-                <GlitchProjectImage media={project.heroMedia} alt={`${project.displayTitle} project artwork`} sizes="(max-width: 800px) 92vw, 58vw" className="cinema-project-image" />
+                <GlitchProjectImage media={project.heroMedia} alt={`${project.displayTitle} project artwork`} sizes="(max-width: 800px) 92vw, 58vw" className="cinema-project-image" enabled={loadedMedia.has(index)} />
                 {project.temporary && <figcaption>TEMPORARY LABEL / ORIGINAL ASSET</figcaption>}
               </figure>
               <div className="cinema-project-index" aria-hidden="true">{String(index + 1).padStart(2, "0")}</div>

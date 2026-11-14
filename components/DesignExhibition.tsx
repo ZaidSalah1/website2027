@@ -8,9 +8,9 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 const nikeVideoSource = "/imgs/nike.mp4";
 
 const designProjects = [
-  { index: "02", name: "WATCH APP DESIGN", image: "/imgs/walletUIUX.png", accent: "#d9a27f", layout: "watch" },
-  { index: "03", name: "CRYPTO WALLET DESIGN", image: "/imgs/cryptoUIUX.png", accent: "#ff5b3d", layout: "crypto" },
-  { index: "04", name: "CAR APP DESIGN", image: "/imgs/carUIUX.png", accent: "#d7a36d", layout: "car" },
+  { index: "02", name: "WATCH APP DESIGN", image: "/imgs/optimized/walletUIUX.webp", accent: "#d9a27f", layout: "watch" },
+  { index: "03", name: "CRYPTO WALLET DESIGN", image: "/imgs/optimized/cryptoUIUX.webp", accent: "#ff5b3d", layout: "crypto" },
+  { index: "04", name: "CAR APP DESIGN", image: "/imgs/optimized/carUIUX.webp", accent: "#d7a36d", layout: "car" },
 ];
 
 export default function DesignExhibition() {
@@ -64,7 +64,7 @@ export default function DesignExhibition() {
         {designProjects.map((project) => (
           <article key={project.name} className={`design-gallery-item design-gallery-item--${project.layout}`} data-design-project style={{ "--design-accent": project.accent } as React.CSSProperties}>
             <header><span>{project.index}</span><h3>{project.name}</h3><small>UI / UX CONCEPT</small></header>
-            <figure><div className="design-gallery-light" aria-hidden="true"/><Image src={project.image} alt={`${project.name} original interface mockups`} fill sizes="(max-width: 800px) 92vw, 48vw" className="design-gallery-image"/></figure>
+            <figure><div className="design-gallery-light" aria-hidden="true"/><Image src={project.image} alt={`${project.name} original interface mockups`} fill sizes="(max-width: 800px) 92vw, 48vw" className="design-gallery-image" loading="lazy" placeholder="empty" onLoad={(event) => event.currentTarget.classList.add("is-ready")}/></figure>
           </article>
         ))}
       </div>

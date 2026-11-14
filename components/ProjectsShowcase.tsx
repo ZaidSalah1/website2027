@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useProjectDetails } from "./ProjectDetailsProvider";
-import GlitchProjectImage from "./GlitchProjectImage";
+import GlitchProjectImage, { preloadProjectImage } from "./GlitchProjectImage";
 import { projectHeroMedia, type ProjectHeroMedia } from "../data/projectHeroMedia";
 
 type Project = { id?: string; index: string; name: string; type: string; statement: string; tags: string[]; tone: "acid" | "blue" | "mono"; ambient?: "drevr"; heroMedia?: ProjectHeroMedia };
@@ -15,7 +15,7 @@ const projects: Project[] = [
   { index: "03", name: "SYSTEMS", type: "SELECTED ENGINEERING / MORE TO COME", statement: "Interfaces are only the surface. The work extends into resilient APIs, operations, and product infrastructure.", tags: ["BACKEND", "DEVOPS", "ARCHITECTURE"], tone: "mono" },
 ];
 
-function ProductVisual({ project }: { project: Project }) {
+function ProductVisual({ project, critical, enabled }: { project: Project; critical: boolean; enabled: boolean }) {
   const title = project.index === "01" ? "YOUR HEALTH" : project.index === "02" ? "YOUR ROUTE" : "YOUR SYSTEM";
   return (
     <div className={`product-visual product-visual--${project.tone}`} aria-hidden="true">
@@ -23,7 +23,7 @@ function ProductVisual({ project }: { project: Project }) {
       <div className="visual-canvas">
         <div className="visual-orbit" />
         {project.heroMedia ? (
-          <GlitchProjectImage media={project.heroMedia} alt={`${project.name} application showcase`} sizes="(max-width: 900px) 94vw, 58vw" className="project-showcase-image" />
+          <GlitchProjectImage media={project.heroMedia} alt={`${project.name} application showcase`} sizes="(max-width: 900px) 94vw, 58vw" className="project-showcase-image" critical={critical} enabled={enabled} />
         ) : (<>
         <div className="visual-phone">
           <div className="phone-island" /><div className="phone-title">{title}</div>
@@ -45,6 +45,19 @@ export default function ProjectsShowcase() {
   const root = useRef<HTMLElement>(null);
   const stage = useRef<HTMLDivElement>(null);
   const track = useRef<HTMLDivElement>(null);
+  const [loadedMedia, setLoadedMedia] = useState(() => new Set([0]));
+
+  useEffect(() => {
+    if (!root.current || !projects[1].heroMedia) return;
+    const observer = new IntersectionObserver(([entry]) => {
+      if (!entry.isIntersecting) return;
+      setLoadedMedia((current) => new Set(current).add(1));
+      void preloadProjectImage(projects[1].heroMedia!.images[0], "(max-width: 900px) 94vw, 58vw");
+      observer.disconnect();
+    }, { rootMargin: "0px 0px 70% 0px" });
+    observer.observe(root.current);
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
@@ -66,7 +79,10 @@ export default function ProjectsShowcase() {
             id: "projects-horizontal", trigger: stage.current, start: "top top", end: () => `+=${distance() / travelShare}`,
             pin: true, pinSpacing: true, scrub: 1.05, anticipatePin: 1, invalidateOnRefresh: true,
             onRefreshInit: syncViewport,
-            onUpdate: (self) => root.current?.style.setProperty("--projects-progress", `${self.progress}`),
+            onUpdate: (self) => {
+              root.current?.style.setProperty("--projects-progress", `${self.progress}`);
+              if (self.progress > .16) setLoadedMedia((current) => current.has(1) ? current : new Set(current).add(1));
+            },
           },
         });
         timeline
@@ -100,7 +116,7 @@ export default function ProjectsShowcase() {
       <div ref={stage} className="projects-stage">
         <div className="projects-stage-chrome" aria-hidden="true"><span>SELECTED WORK / 2026</span><span className="stage-progress"><i /></span><span>03 PROJECT SYSTEMS</span></div>
         <div ref={track} className="projects-track" role="region" aria-label="Projects. Continue scrolling vertically to move through the project stories." tabIndex={0}>
-          {projects.map((project) => (
+          {projects.map((project, projectIndex) => (
             <article className={`project-panel project-panel--${project.tone}${project.ambient ? ` project-panel--${project.ambient}` : ""}`} key={project.name} role="group" aria-label={`Project ${project.index} of ${projects.length}: ${project.name}`}>
               <div className="project-copy">
                 <div className="project-kicker" data-project-reveal><span>{project.index}</span>{project.type}</div>
@@ -109,7 +125,7 @@ export default function ProjectsShowcase() {
                 {project.id && <button className="project-explore" type="button" data-project-reveal onClick={(event) => openProject(project.id!, event.currentTarget)}>EXPLORE PROJECT <span>↗</span></button>}
                 <div className="project-index" aria-hidden="true">{project.index}</div>
               </div>
-              <div className="project-art" data-project-reveal><ProductVisual project={project} /></div>
+              <div className="project-art" data-project-reveal><ProductVisual project={project} critical={projectIndex === 0} enabled={loadedMedia.has(projectIndex)} /></div>
             </article>
           ))}
         </div>

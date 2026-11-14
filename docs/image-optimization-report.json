@@ -1,0 +1,146 @@
+[
+  {
+    "source": "imgs/seha1.png",
+    "output": "imgs/optimized/seha1.webp",
+    "beforeBytes": 4662923,
+    "afterBytes": 296840,
+    "reductionPercent": 93.6,
+    "beforeDimensions": "4096x3526",
+    "afterDimensions": "2560x2204"
+  },
+  {
+    "source": "imgs/seha2.png",
+    "output": "imgs/optimized/seha2.webp",
+    "beforeBytes": 1521333,
+    "afterBytes": 180252,
+    "reductionPercent": 88.2,
+    "beforeDimensions": "1642x958",
+    "afterDimensions": "1642x958"
+  },
+  {
+    "source": "imgs/seha3.png",
+    "output": "imgs/optimized/seha3.webp",
+    "beforeBytes": 8640496,
+    "afterBytes": 345440,
+    "reductionPercent": 96,
+    "beforeDimensions": "4096x3882",
+    "afterDimensions": "2560x2426"
+  },
+  {
+    "source": "imgs/seha22.png",
+    "output": "imgs/optimized/seha22.webp",
+    "beforeBytes": 260811,
+    "afterBytes": 80268,
+    "reductionPercent": 69.2,
+    "beforeDimensions": "1053x658",
+    "afterDimensions": "1053x658"
+  },
+  {
+    "source": "imgs/drevr1.png",
+    "output": "imgs/optimized/drevr1.webp",
+    "beforeBytes": 5969923,
+    "afterBytes": 682210,
+    "reductionPercent": 88.6,
+    "beforeDimensions": "3076x2861",
+    "afterDimensions": "2560x2381"
+  },
+  {
+    "source": "imgs/athkar1.png",
+    "output": "imgs/optimized/athkar1.webp",
+    "beforeBytes": 1568797,
+    "afterBytes": 189398,
+    "reductionPercent": 87.9,
+    "beforeDimensions": "1122x1402",
+    "afterDimensions": "1122x1402"
+  },
+  {
+    "source": "imgs/athkar2.png",
+    "output": "imgs/optimized/athkar2.webp",
+    "beforeBytes": 198636,
+    "afterBytes": 44952,
+    "reductionPercent": 77.4,
+    "beforeDimensions": "436x550",
+    "afterDimensions": "436x550"
+  },
+  {
+    "source": "imgs/foodApo.png",
+    "output": "imgs/optimized/foodApo.webp",
+    "beforeBytes": 1990941,
+    "afterBytes": 300452,
+    "reductionPercent": 84.9,
+    "beforeDimensions": "1414x1112",
+    "afterDimensions": "1414x1112"
+  },
+  {
+    "source": "imgs/foodApo1.png",
+    "output": "imgs/optimized/foodApo1.webp",
+    "beforeBytes": 421704,
+    "afterBytes": 82134,
+    "reductionPercent": 80.5,
+    "beforeDimensions": "661x522",
+    "afterDimensions": "661x522"
+  },
+  {
+    "source": "imgs/store1.png",
+    "output": "imgs/optimized/store1.webp",
+    "beforeBytes": 1354609,
+    "afterBytes": 174684,
+    "reductionPercent": 87.1,
+    "beforeDimensions": "1672x941",
+    "afterDimensions": "1672x941"
+  },
+  {
+    "source": "imgs/store2.png",
+    "output": "imgs/optimized/store2.webp",
+    "beforeBytes": 654748,
+    "afterBytes": 148434,
+    "reductionPercent": 77.3,
+    "beforeDimensions": "1480x965",
+    "afterDimensions": "1480x965"
+  },
+  {
+    "source": "imgs/carRental.png",
+    "output": "imgs/optimized/carRental.webp",
+    "beforeBytes": 1690631,
+    "afterBytes": 195926,
+    "reductionPercent": 88.4,
+    "beforeDimensions": "1221x1288",
+    "afterDimensions": "1221x1288"
+  },
+  {
+    "source": "imgs/carRental1.png",
+    "output": "imgs/optimized/carRental1.webp",
+    "beforeBytes": 212992,
+    "afterBytes": 53442,
+    "reductionPercent": 74.9,
+    "beforeDimensions": "567x598",
+    "afterDimensions": "567x598"
+  },
+  {
+    "source": "public/imgs/walletUIUX.png",
+    "output": "public/imgs/optimized/walletUIUX.webp",
+    "beforeBytes": 473317,
+    "afterBytes": 74786,
+    "reductionPercent": 84.2,
+    "beforeDimensions": "763x853",
+    "afterDimensions": "763x853"
+  },
+  {
+    "source": "public/imgs/cryptoUIUX.png",
+    "output": "public/imgs/optimized/cryptoUIUX.webp",
+    "beforeBytes": 237252,
+    "afterBytes": 39268,
+    "reductionPercent": 83.4,
+    "beforeDimensions": "614x808",
+    "afterDimensions": "614x808"
+  },
+  {
+    "source": "public/imgs/carUIUX.png",
+    "output": "public/imgs/optimized/carUIUX.webp",
+    "beforeBytes": 325812,
+    "afterBytes": 61988,
+    "reductionPercent": 81,
+    "beforeDimensions": "692x758",
+    "afterDimensions": "692x758"
+  }
+]

@@ -1,11 +1,32 @@
 "use client";
 
-import Image from "next/image";
+import Image, { getImageProps } from "next/image";
 import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import type { ProjectHeroMedia } from "../data/projectHeroMedia";
 
-export default function GlitchProjectImage({ media, alt, className, sizes }: { media: ProjectHeroMedia; alt: string; className: string; sizes: string }) {
+const preloadCache = new Map<string, Promise<void>>();
+
+export function preloadProjectImage(source: ProjectHeroMedia["images"][number], sizes: string) {
+  if (typeof window === "undefined") return Promise.resolve();
+  const key = `${source.src}|${sizes}`;
+  const cached = preloadCache.get(key);
+  if (cached) return cached;
+  const promise = new Promise<void>((resolve) => {
+    const { props } = getImageProps({ src: source, alt: "", fill: true, sizes });
+    const image = new window.Image();
+    image.decoding = "async";
+    image.sizes = props.sizes ?? sizes;
+    if (props.srcSet) image.srcset = props.srcSet;
+    image.src = props.src;
+    image.onload = () => image.decode().catch(() => undefined).finally(resolve);
+    image.onerror = () => resolve();
+  });
+  preloadCache.set(key, promise);
+  return promise;
+}
+
+export default function GlitchProjectImage({ media, alt, className, sizes, critical = false, enabled = true }: { media: ProjectHeroMedia; alt: string; className: string; sizes: string; critical?: boolean; enabled?: boolean }) {
   const root = useRef<HTMLDivElement>(null);
   const currentRef = useRef(0);
   const timerRef = useRef<number | null>(null);
@@ -14,16 +35,18 @@ export default function GlitchProjectImage({ media, alt, className, sizes }: { m
   const intersectingRef = useRef(false);
   const [current, setCurrent] = useState(0);
   const [incoming, setIncoming] = useState(media.images.length > 1 ? 1 : 0);
+  const [currentReady, setCurrentReady] = useState(false);
   const animated = media.transition === "glitch" && media.images.length > 1;
 
   useEffect(() => {
     currentRef.current = 0;
     setCurrent(0);
     setIncoming(media.images.length > 1 ? 1 : 0);
+    setCurrentReady(false);
   }, [media]);
 
   useEffect(() => {
-    if (!animated || !root.current || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (!enabled || !animated || !root.current || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const element = root.current;
     const projectPanel = element.closest<HTMLElement>("[data-project-active]");
 
@@ -37,14 +60,21 @@ export default function GlitchProjectImage({ media, alt, className, sizes }: { m
       if (!eligible() || transitioningRef.current) return;
       timerRef.current = window.setTimeout(transition, media.intervalMs ?? 4500);
     };
-    const transition = () => {
+    const transition = async () => {
       if (!eligible() || transitioningRef.current) { schedule(); return; }
       transitioningRef.current = true;
       const next = (currentRef.current + 1) % media.images.length;
-      const preload = new window.Image();
-      preload.src = media.images[next].src;
       setIncoming(next);
-      requestAnimationFrame(() => requestAnimationFrame(() => {
+      await new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
+      const decodedLayers = [...(root.current?.querySelectorAll<HTMLImageElement>(".glitch-incoming, .glitch-slice") ?? [])];
+      try {
+        await Promise.all(decodedLayers.map((image) => image.decode()));
+      } catch {
+        transitioningRef.current = false;
+        schedule();
+        return;
+      }
+      requestAnimationFrame(() => {
         if (!root.current || !eligible()) { transitioningRef.current = false; schedule(); return; }
         const currentLayer = root.current.querySelector<HTMLElement>(".glitch-current");
         const incomingLayer = root.current.querySelector<HTMLElement>(".glitch-incoming");
@@ -74,7 +104,7 @@ export default function GlitchProjectImage({ media, alt, className, sizes }: { m
           .to(currentLayer, { opacity: 0, x: 2, duration: .11, ease: "power1.in" }, .19)
           .to(slices, { x: 0, opacity: 0, duration: .16, stagger: .025, ease: "power2.out" }, .25)
           .to(incomingLayer, { x: 0, filter: "none", duration: .12, ease: "power2.out" }, .29);
-      }));
+      });
     };
     const cancelTransition = () => {
       timelineRef.current?.kill();
@@ -98,15 +128,18 @@ export default function GlitchProjectImage({ media, alt, className, sizes }: { m
       document.removeEventListener("visibilitychange", sync);
       timelineRef.current?.kill();
     };
-  }, [animated, media]);
+  }, [animated, enabled, media]);
+
+  if (!enabled) return <div className="glitch-project-image is-pending" data-transition={animated ? "glitch" : "static"} data-image-index="pending"><span className="glitch-placeholder" aria-hidden="true" /></div>;
 
   const currentImage = media.images[current] ?? media.images[0];
   const incomingImage = media.images[incoming] ?? currentImage;
-  return <div ref={root} className="glitch-project-image" data-transition={animated ? "glitch" : "static"} data-image-index={current}>
-    <Image src={currentImage} alt={alt} fill sizes={sizes} className={`${className} glitch-current`} placeholder="blur" />
+  return <div ref={root} className={`glitch-project-image${currentReady ? " is-ready" : " is-loading"}`} data-transition={animated ? "glitch" : "static"} data-image-index={current}>
+    <span className="glitch-placeholder" aria-hidden="true" />
+    <Image src={currentImage} alt={alt} fill sizes={sizes} className={`${className} glitch-current${currentReady ? " is-ready" : ""}`} placeholder="empty" loading={critical ? "eager" : "lazy"} fetchPriority={critical ? "high" : "auto"} decoding="async" onLoad={(event) => event.currentTarget.decode().catch(() => undefined).finally(() => setCurrentReady(true))} />
     {animated && <>
-      <Image src={incomingImage} alt="" aria-hidden fill sizes={sizes} className={`${className} glitch-incoming`} />
-      {["top", "middle", "bottom"].map((slice) => <Image key={slice} src={incomingImage} alt="" aria-hidden fill sizes={sizes} className={`${className} glitch-slice glitch-slice--${slice}`} />)}
+      <Image src={incomingImage} alt="" aria-hidden fill sizes={sizes} className={`${className} glitch-incoming`} placeholder="empty" loading="lazy" decoding="async" />
+      {["top", "middle", "bottom"].map((slice) => <Image key={slice} src={incomingImage} alt="" aria-hidden fill sizes={sizes} className={`${className} glitch-slice glitch-slice--${slice}`} placeholder="empty" loading="lazy" decoding="async" />)}
     </>}
   </div>;
 }

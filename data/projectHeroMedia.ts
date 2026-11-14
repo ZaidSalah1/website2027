@@ -1,16 +1,16 @@
 import type { StaticImageData } from "next/image";
-import seha1 from "../imgs/seha1.png";
-import seha2 from "../imgs/seha2.png";
-import seha3 from "../imgs/seha3.png";
+import seha1 from "../imgs/optimized/seha1.webp";
+import seha2 from "../imgs/optimized/seha2.webp";
+import seha3 from "../imgs/optimized/seha3.webp";
 
-import drevr1 from "../imgs/drevr1.png";
-import foodApo from "../imgs/foodApo.png";
-import foodApo1 from "../imgs/foodApo1.png";
-import store1 from "../imgs/store1.png";
-import store2 from "../imgs/store2.png";
-import carRental from "../imgs/carRental.png";
-import carRental1 from "../imgs/carRental1.png";
-import athkar1 from "../imgs/athkar1.png";
+import drevr1 from "../imgs/optimized/drevr1.webp";
+import foodApo from "../imgs/optimized/foodApo.webp";
+import foodApo1 from "../imgs/optimized/foodApo1.webp";
+import store1 from "../imgs/optimized/store1.webp";
+import store2 from "../imgs/optimized/store2.webp";
+import carRental from "../imgs/optimized/carRental.webp";
+import carRental1 from "../imgs/optimized/carRental1.webp";
+import athkar1 from "../imgs/optimized/athkar1.webp";
 
 export type ProjectHeroMedia = {
   images: StaticImageData[];
