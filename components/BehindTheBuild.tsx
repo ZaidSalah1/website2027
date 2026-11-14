@@ -11,7 +11,7 @@ const chapters: Chapter[] = [
   { index: "01", eyebrow: "DISCOVER / DEFINE", title: "THE IDEA", copy: "Start with the real problem. Strip away assumptions. Shape a practical path from need to useful software.", scene: "idea" },
   { index: "02", eyebrow: "DESIGN / INTERACT", title: "THE EXPERIENCE", copy: "Turn intent into an interface that feels clear, responsive, and natural across web and mobile.", scene: "experience" },
   { index: "03", eyebrow: "CONNECT / ORCHESTRATE", title: "THE ENGINE", copy: "Build the systems beneath the surface—data, APIs, identity, integrations, and real-time movement.", scene: "engine" },
-  { index: "04", eyebrow: "VERIFY / RELEASE", title: "THE LAUNCH", copy: "Bring every layer together, verify the product, and move it from development into the hands of real users.", scene: "launch" },
+  { index: "04", eyebrow: "VERIFY / RELEASE", title: "THE LAUNCH", copy: "Bring every layer into alignment, confirm the final release, and activate a product ready for the real world.", scene: "launch" },
 ];
 
 function IdeaScene() {
@@ -132,10 +132,40 @@ function EngineScene() {
 }
 
 function LaunchScene() {
-  return <div className="build-scene launch-scene" aria-hidden="true">
-    <div className="launch-rings"><i/><i/><i/><span>LIVE</span></div>
-    <div className="launch-terminal"><div><i/><i/><i/><span>RELEASE PIPELINE</span></div><p><b>01</b> BUILD <em>COMPLETE</em></p><p><b>02</b> VERIFY <em>COMPLETE</em></p><p><b>03</b> RELEASE <em>LIVE</em></p></div>
-    <div className="launch-signal"><span>PRODUCT STATUS</span><strong>DEPLOYED</strong><i/></div>
+  const scene = useRef<HTMLDivElement>(null);
+  useEffect(()=>{
+    if(!scene.current)return;
+    const context=gsap.context(()=>{
+      if(matchMedia("(prefers-reduced-motion:reduce)").matches)return;
+      const timeline=gsap.timeline({paused:true,repeat:-1,repeatDelay:1.1});
+      const routes=["a","b","c"];
+      timeline.set(".launch-input-signal",{opacity:1});
+      routes.forEach((route,index)=>timeline.to(`.launch-signal--${route}`,{duration:.9,ease:"power1.inOut",motionPath:{path:`.launch-route--${route}`,align:`.launch-route--${route}`,alignOrigin:[.5,.5]}},index===0?0:index*.08));
+      timeline.set(".launch-input-signal",{opacity:0},1)
+        .to(".launch-core",{borderColor:"rgba(108,166,255,.92)",boxShadow:"0 0 2.6rem rgba(72,138,235,.2),inset 0 0 2rem rgba(72,138,235,.06)",duration:.34,yoyo:true,repeat:1},.9)
+        .fromTo(".launch-core-progress i",{scaleX:0},{scaleX:1,duration:.58,ease:"power2.out"},1)
+        .set(".launch-output-signal",{opacity:1},1.45)
+        .to(".launch-output-signal",{duration:.92,ease:"power2.inOut",motionPath:{path:".launch-route--release",align:".launch-route--release",alignOrigin:[.5,.5]}},1.45)
+        .to(".launch-confirmation",{borderColor:"rgba(105,165,255,.78)",color:"#e8f2ff",duration:.25,yoyo:true,repeat:1},2.05)
+        .set(".launch-output-signal",{opacity:0},2.4);
+      const sync=(entry?:IntersectionObserverEntry)=>{const visible=entry?entry.isIntersecting:Boolean(scene.current&&scene.current.getBoundingClientRect().right>0&&scene.current.getBoundingClientRect().left<innerWidth);if(visible&&!document.hidden)timeline.play();else timeline.pause()};
+      const observer=new IntersectionObserver(([entry])=>sync(entry),{threshold:.28});observer.observe(scene.current!);
+      const visibility=()=>sync();document.addEventListener("visibilitychange",visibility);
+      return()=>{observer.disconnect();document.removeEventListener("visibilitychange",visibility);timeline.kill()};
+    },scene);return()=>context.revert();
+  },[]);
+  return <div ref={scene} className="build-scene launch-scene" role="img" aria-labelledby="launch-visual-title launch-visual-description">
+    <span id="launch-visual-title" className="sr-only">Final release activation</span><span id="launch-visual-description" className="sr-only">Build, verification, and system signals converge into a final release core before a confirmed launch signal is sent.</span>
+    <div className="launch-grid" aria-hidden="true"/>
+    <svg className="launch-network" viewBox="0 0 1000 600" aria-hidden="true">
+      <defs><marker id="launch-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0 10 5 0 10z"/></marker></defs>
+      <path className="launch-route launch-route--a" d="M78 145 H275 L445 270" markerEnd="url(#launch-arrow)"/><path className="launch-route launch-route--b" d="M78 300 H445" markerEnd="url(#launch-arrow)"/><path className="launch-route launch-route--c" d="M78 455 H275 L445 330" markerEnd="url(#launch-arrow)"/><path className="launch-route launch-route--release" d="M555 300 H920" markerEnd="url(#launch-arrow)"/>
+      <path className="launch-guide" d="M275 118 V482 M720 270 V330"/><circle className="launch-input-signal launch-signal--a" r="5"/><circle className="launch-input-signal launch-signal--b" r="5"/><circle className="launch-input-signal launch-signal--c" r="5"/><circle className="launch-output-signal" r="6"/>
+    </svg>
+    <div className="launch-inputs"><span><i/>BUILD COMPLETE</span><span><i/>QUALITY VERIFIED</span><span><i/>SYSTEMS ALIGNED</span></div>
+    <section className="launch-core"><header><span>FINAL RELEASE</span><b>04</b></header><strong>ACTIVATED</strong><div className="launch-core-progress"><i/></div><footer><span>BUILD</span><span>VERIFY</span><span>RELEASE</span></footer></section>
+    <div className="launch-confirmation"><span>GO-LIVE</span><strong>LAUNCH CONFIRMED</strong><small>PRODUCT / READY</small></div>
+    <div className="launch-meta"><span>ALL SYSTEMS / ALIGNED</span><span>RELEASE CHANNEL / STABLE</span></div>
   </div>;
 }
 
