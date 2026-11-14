@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { MotionPathPlugin } from "gsap/MotionPathPlugin";
 
 type Chapter = { index: string; eyebrow: string; title: string; copy: string; scene: "idea" | "experience" | "engine" | "launch" };
 
@@ -53,11 +54,80 @@ function ExperienceScene() {
 }
 
 function EngineScene() {
-  const nodes = [["CLIENT","12%","43%"],["API","39%","20%"],["AUTH","40%","67%"],["DATA","70%","25%"],["EVENTS","73%","66%"],["INTEGRATION","88%","45%"]];
-  return <div className="build-scene engine-scene" aria-hidden="true">
-    <svg className="engine-lines" viewBox="0 0 1000 600"><path d="M120 260 L390 130 L700 150 L880 270"/><path d="M120 260 L400 400 L730 395 L880 270"/><path d="M390 130 L400 400"/><circle className="data-pulse pulse-a" r="5"/><circle className="data-pulse pulse-b" r="5"/></svg>
-    {nodes.map(([name,left,top],i)=><div className={`engine-node node-${i}`} style={{left,top}} key={name}><small>0{i+1}</small><strong>{name}</strong><span>{i===0?"REQUEST":i===5?"RESPONSE":"CONNECTED"}</span></div>)}
-    <div className="engine-status"><i/> SYSTEM FLOW / ACTIVE</div>
+  const scene = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!scene.current) return;
+    gsap.registerPlugin(MotionPathPlugin);
+    const context = gsap.context(() => {
+      const media = gsap.matchMedia();
+      const setup = (suffix: "desktop" | "mobile") => {
+        const timeline = gsap.timeline({ paused:true, repeat:-1, repeatDelay:.75 });
+        const path = (name:string) => `.engine-path--${name}-${suffix}`;
+        const travel = (signal:string, route:string, duration:number) => timeline
+          .set(signal,{opacity:1})
+          .to(signal,{duration,ease:"power1.inOut",motionPath:{path:path(route),align:path(route),alignOrigin:[.5,.5]}},">")
+          .set(signal,{opacity:0});
+
+        travel(".engine-signal--primary","request",.72);
+        timeline.to(".engine-backend",{borderColor:"rgba(101,156,255,.82)",boxShadow:"0 0 2.4rem rgba(76,139,237,.18)",duration:.28,yoyo:true,repeat:1},">");
+        travel(".engine-signal--data","data-out",.58);
+        timeline.to(".engine-database",{borderColor:"rgba(101,156,255,.72)",duration:.2,yoyo:true,repeat:1},"<.32");
+        travel(".engine-signal--data","data-return",.58);
+        travel(".engine-signal--service","integration",.68);
+        timeline.to(".engine-external",{borderColor:"rgba(101,156,255,.68)",duration:.2,yoyo:true,repeat:1},"<.4");
+        travel(".engine-signal--primary","response",.72);
+        travel(".engine-signal--event","realtime",.58);
+        timeline.to(".engine-realtime",{borderColor:"rgba(82,205,211,.72)",duration:.2,yoyo:true,repeat:1},"<.36");
+        travel(".engine-signal--event","events",.72);
+
+        const sync = (entry?:IntersectionObserverEntry) => {
+          const visible = entry ? entry.isIntersecting : Boolean(scene.current && scene.current.getBoundingClientRect().right > 0 && scene.current.getBoundingClientRect().left < innerWidth);
+          if (visible && !document.hidden) timeline.play(); else timeline.pause();
+        };
+        const observer = new IntersectionObserver(([entry])=>sync(entry),{threshold:.28});
+        observer.observe(scene.current!);
+        const visibility = () => sync();
+        document.addEventListener("visibilitychange",visibility);
+        return()=>{observer.disconnect();document.removeEventListener("visibilitychange",visibility);timeline.kill()};
+      };
+      media.add("(min-width:901px) and (prefers-reduced-motion:no-preference)",()=>setup("desktop"));
+      media.add("(max-width:900px) and (prefers-reduced-motion:no-preference)",()=>setup("mobile"));
+      return()=>media.revert();
+    },scene);
+    return()=>context.revert();
+  },[]);
+
+  return <div ref={scene} className="build-scene engine-scene" role="img" aria-labelledby="engine-diagram-title engine-diagram-description">
+    <span id="engine-diagram-title" className="sr-only">Client and server system architecture</span>
+    <span id="engine-diagram-description" className="sr-only">Web and mobile clients send HTTPS requests to a backend API. The backend validates identity, applies business logic, reads and writes data, calls external services, returns responses, and delivers bidirectional real-time events.</span>
+    <div className="engine-grid" aria-hidden="true" />
+    <svg className="engine-connectors engine-connectors--desktop" viewBox="0 0 1000 600" aria-hidden="true">
+      <defs><marker id="engine-arrow-blue" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0 10 5 0 10z"/></marker><marker id="engine-arrow-cyan" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0 10 5 0 10z"/></marker></defs>
+      <path className="engine-path engine-path--request-desktop" d="M245 238 H350" markerEnd="url(#engine-arrow-blue)"/><path className="engine-path engine-path--response-desktop engine-path--response" d="M350 286 H245" markerEnd="url(#engine-arrow-blue)"/>
+      <path className="engine-path engine-path--events-desktop engine-path--events" d="M350 350 H245" markerEnd="url(#engine-arrow-cyan)"/><path className="engine-path engine-path--event-return" d="M245 366 H350" markerEnd="url(#engine-arrow-cyan)"/>
+      <path className="engine-path engine-path--data-out-desktop" d="M625 205 L735 157" markerEnd="url(#engine-arrow-blue)"/><path className="engine-path engine-path--data-return-desktop engine-path--response" d="M735 196 L625 238" markerEnd="url(#engine-arrow-blue)"/>
+      <path className="engine-path engine-path--realtime-desktop engine-path--events" d="M625 321 H735" markerEnd="url(#engine-arrow-cyan)"/><path className="engine-path engine-path--event-return" d="M735 339 H625" markerEnd="url(#engine-arrow-cyan)"/>
+      <path className="engine-path engine-path--integration-desktop" d="M625 397 L735 475" markerEnd="url(#engine-arrow-blue)"/>
+      <g className="engine-route-labels"><text x="270" y="225">REQUEST</text><text x="270" y="307">RESPONSE</text><text x="272" y="342">EVENTS</text><text x="650" y="166">READ / WRITE</text><text x="655" y="310">REAL-TIME</text><text x="654" y="440">INTEGRATION</text></g>
+      <circle className="engine-signal engine-signal--primary" r="5"/><circle className="engine-signal engine-signal--data" r="5"/><circle className="engine-signal engine-signal--service" r="5"/><circle className="engine-signal engine-signal--event" r="5"/>
+    </svg>
+    <svg className="engine-connectors engine-connectors--mobile" viewBox="0 0 600 820" aria-hidden="true">
+      <defs><marker id="engine-arrow-mobile" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0 10 5 0 10z"/></marker><marker id="engine-arrow-mobile-cyan" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0 10 5 0 10z"/></marker></defs>
+      <path className="engine-path engine-path--request-mobile" d="M272 185 V264" markerEnd="url(#engine-arrow-mobile)"/><path className="engine-path engine-path--response-mobile engine-path--response" d="M328 264 V185" markerEnd="url(#engine-arrow-mobile)"/>
+      <path className="engine-path engine-path--events-mobile engine-path--events" d="M365 264 V185" markerEnd="url(#engine-arrow-mobile-cyan)"/><path className="engine-path engine-path--event-return" d="M398 185 V264" markerEnd="url(#engine-arrow-mobile-cyan)"/>
+      <path className="engine-path engine-path--data-out-mobile" d="M245 500 L118 618" markerEnd="url(#engine-arrow-mobile)"/><path className="engine-path engine-path--data-return-mobile engine-path--response" d="M150 636 L274 520" markerEnd="url(#engine-arrow-mobile)"/>
+      <path className="engine-path engine-path--realtime-mobile engine-path--events" d="M300 520 V620" markerEnd="url(#engine-arrow-mobile-cyan)"/><path className="engine-path engine-path--event-return" d="M328 620 V520" markerEnd="url(#engine-arrow-mobile-cyan)"/>
+      <path className="engine-path engine-path--integration-mobile" d="M355 500 L482 618" markerEnd="url(#engine-arrow-mobile)"/>
+      <g className="engine-route-labels"><text x="182" y="230">REQUEST / RESPONSE</text><text x="71" y="573">READ / WRITE</text><text x="250" y="576">EVENTS</text><text x="420" y="573">INTEGRATION</text></g>
+      <circle className="engine-signal engine-signal--primary" r="5"/><circle className="engine-signal engine-signal--data" r="5"/><circle className="engine-signal engine-signal--service" r="5"/><circle className="engine-signal engine-signal--event" r="5"/>
+    </svg>
+    <section className="engine-layer engine-clients"><header><small>01 / CLIENT APPLICATIONS</small><b>INTERFACE LAYER</b></header><div><span>WEB APPLICATION</span><span>MOBILE APPLICATION</span></div><p>HTTPS requests · responses · live updates</p></section>
+    <section className="engine-layer engine-backend"><header><small>02 / CENTRAL ORCHESTRATION</small><b>BACKEND API</b></header><div className="engine-modules"><span><i>AUTH</i>Identity / access</span><span><i>VALIDATION</i>Request integrity</span><span><i>LOGIC</i>Product rules</span></div><p>RECEIVE → VERIFY → PROCESS → COORDINATE</p></section>
+    <section className="engine-layer engine-service engine-database"><header><small>03 / DATA</small><b>DATABASE</b></header><p>Persistent reads / writes</p></section>
+    <section className="engine-layer engine-service engine-realtime"><header><small>04 / LIVE</small><b>REAL-TIME EVENTS</b></header><p>Socket.IO / WebSocket</p></section>
+    <section className="engine-layer engine-service engine-external"><header><small>05 / PROVIDERS</small><b>EXTERNAL SERVICES</b></header><p>Payments · notifications · APIs</p></section>
+    <div className="engine-status"><i/> ARCHITECTURE / ACTIVE</div>
   </div>;
 }
 
