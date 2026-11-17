@@ -4,16 +4,20 @@ import Image from "next/image";
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { ArrowUpRight, Download, Mail } from "lucide-react";
+import { SiGithub } from "react-icons/si";
+import { FaLinkedinIn } from "react-icons/fa6";
 
 const navigation = [
   ["HOME", "#"], ["PROJECTS", "#projects"], ["PROCESS", "#behind-build"], ["SKILLS", "#skills"], ["CONTACT", "#contact"],
 ];
 const socials = [
-  ["LINKEDIN", "https://www.linkedin.com/in/your-username"],
-  ["GITHUB", "https://github.com/your-username"],
-  ["EMAIL", "mailto:your.email@example.com"],
+  { label:"LINKEDIN", eyebrow:"PROFESSIONAL NETWORK", href:null, icon:FaLinkedinIn },
+  { label:"GITHUB", eyebrow:"CODE & PROJECTS", href:"https://github.com/ZaidSalah1", icon:SiGithub },
+  { label:"EMAIL", eyebrow:"DIRECT CONTACT", href:null, icon:Mail },
 ];
 const technologies = ["REACT", "REACT NATIVE", "TYPESCRIPT", "NODE.JS", "POSTGRESQL", "NEXT.JS"];
+const resumeHref: string | null = null;
 
 export default function ContactConclusion() {
   const root = useRef<HTMLElement>(null);
@@ -28,10 +32,10 @@ export default function ContactConclusion() {
           .fromTo(".contact-menu li, .contact-socials li", { y: 28, opacity: 0 }, { y: 0, opacity: 1, stagger: 0.035, ease: "power2.out" }, 0.12)
           .fromTo(".contact-portrait", { yPercent: 12, scale: 0.97 }, { yPercent: 0, scale: 1, ease: "power2.out" }, 0.08);
         gsap.timeline({ scrollTrigger: { id: "contact-depth", trigger: root.current, start: "top bottom", end: "bottom bottom", scrub: 1.1 } })
-          .fromTo(".contact-role-ghost", { xPercent: -4 }, { xPercent: 4, ease: "none" })
-          .fromTo(".contact-portrait", { y: 24 }, { y: -18, ease: "none" }, 0)
-          .fromTo(".contact-menu", { y: 12 }, { y: -8, ease: "none" }, 0)
-          .fromTo(".contact-socials", { y: -8 }, { y: 12, ease: "none" }, 0);
+          .fromTo(".contact-role-ghost", { xPercent: -2 }, { xPercent: 2, ease: "none" })
+          .fromTo(".contact-portrait", { y: 20 }, { y: -14, ease: "none" }, 0)
+          .fromTo(".contact-menu", { y: 8 }, { y: -6, ease: "none" }, 0)
+          .fromTo(".contact-socials", { y: -6 }, { y: 8, ease: "none" }, 0);
       });
       return () => media.revert();
     }, root);
@@ -45,15 +49,17 @@ export default function ContactConclusion() {
         <div className="contact-notch" aria-hidden="true" />
         <div className="contact-line-art" aria-hidden="true"><i/><i/><i/></div>
         <header className="contact-panel-top">
-          <h2 className="contact-name" id="contact-heading">ZAID<br/><span>SALAH</span></h2>
-          <a className="contact-resume" href="#" aria-disabled="true" onClick={(event)=>event.preventDefault()}><span>▤</span> DOWNLOAD RESUME <small>PLACEHOLDER</small><b>↗</b></a>
+          <div><p>PRODUCT ENGINEER / PORTFOLIO</p><h2 className="contact-name" id="contact-heading">ZAID <span>SALAH</span></h2></div>
+          {resumeHref
+            ? <a className="contact-resume" href={resumeHref} download><Download aria-hidden="true"/> DOWNLOAD RESUME <ArrowUpRight aria-hidden="true"/></a>
+            : <span className="contact-resume is-disabled" aria-disabled="true"><Download aria-hidden="true"/> DOWNLOAD RESUME</span>}
         </header>
 
-        <div className="contact-role-ghost" aria-hidden="true">SOFTWARE ENGINEER</div>
+        <div className="contact-role-ghost" aria-hidden="true">LET&apos;S BUILD</div>
         <div className="contact-center">
           <nav className="contact-menu" aria-label="Footer navigation">
-            <p>LINKS / MENU</p>
-            <ul>{navigation.map(([label,href])=><li key={label}><a href={href}>{label}<span>↗</span></a></li>)}</ul>
+            <p>NAVIGATION / INDEX</p>
+            <ul>{navigation.map(([label,href],index)=><li key={label}><a href={href}><small>0{index+1}</small><span>{label}</span><b><ArrowUpRight aria-hidden="true"/></b></a></li>)}</ul>
           </nav>
 
           <div className="contact-portrait">
@@ -63,7 +69,7 @@ export default function ContactConclusion() {
 
           <nav className="contact-socials" aria-label="Social links">
             <p>CONNECT / SOCIAL</p>
-            <ul>{socials.map(([label,href])=><li key={label}><a href={href} target={label==="EMAIL"?undefined:"_blank"} rel={label==="EMAIL"?undefined:"noreferrer"}><span>{label}</span><small>PLACEHOLDER</small><b>↗</b></a></li>)}</ul>
+            <ul>{socials.map(({label,eyebrow,href,icon:Icon})=><li key={label}><a href={href ?? "#"} className={href ? undefined : "is-disabled"} aria-disabled={href ? undefined : "true"} onClick={href ? undefined : (event)=>event.preventDefault()} target={href?.startsWith("http")?"_blank":undefined} rel={href?.startsWith("http")?"noreferrer":undefined}><Icon aria-hidden="true"/><span><small>{eyebrow}</small>{label}</span><b><ArrowUpRight aria-hidden="true"/></b></a></li>)}</ul>
           </nav>
         </div>
 
