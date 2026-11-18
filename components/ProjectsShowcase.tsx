@@ -7,18 +7,32 @@ import { useProjectDetails } from "./ProjectDetailsProvider";
 import GlitchProjectImage, { preloadProjectImage } from "./GlitchProjectImage";
 import { projectHeroMedia, type ProjectHeroMedia } from "../data/projectHeroMedia";
 
-type Project = { id?: string; index: string; name: string; type: string; statement: string; tags: string[]; tone: "acid" | "blue" | "mono"; ambient?: "drevr"; heroMedia?: ProjectHeroMedia };
+type Project = { id?: string; index: string; name: string; type: string; statement: string; tags: string[]; tone: "acid" | "blue" | "mono"; ambient?: "drevr" | "dashboards"; heroMedia?: ProjectHeroMedia };
 
 const projects: Project[] = [
   { id: "seha-plus", index: "01", name: "SEHA PLUS", type: "DIGITAL HEALTH / PRODUCT SYSTEM", statement: "A focused healthcare experience designed around clarity, trust, and faster access to care.", tags: ["PRODUCT", "MOBILE", "HEALTHCARE"], tone: "acid", heroMedia: projectHeroMedia["seha-plus"] },
   { id: "drevr", index: "02", name: "DREVR", type: "MOBILITY / REAL-TIME PLATFORM", statement: "A real-time mobility product connecting people, routes, and decisions in one continuous flow.", tags: ["MOBILE", "REAL-TIME", "PLATFORM"], tone: "blue", ambient: "drevr", heroMedia: projectHeroMedia.drevr },
-  { index: "03", name: "SYSTEMS", type: "SELECTED ENGINEERING / MORE TO COME", statement: "Interfaces are only the surface. The work extends into resilient APIs, operations, and product infrastructure.", tags: ["BACKEND", "DEVOPS", "ARCHITECTURE"], tone: "mono" },
+  { id: "dashboard-systems", index: "03", name: "DASHBOARD SYSTEMS", type: "FULL-STACK / ADMIN PLATFORMS", statement: "Custom administration platforms designed for analytics, product management, order workflows, and operational control.", tags: ["SAAS", "DASHBOARDS", "FULL-STACK"], tone: "mono", ambient: "dashboards", heroMedia: projectHeroMedia["dashboard-systems"] },
 ];
 
 function ProductVisual({ project, critical, enabled }: { project: Project; critical: boolean; enabled: boolean }) {
+  const visual = useRef<HTMLDivElement>(null);
   const title = project.index === "01" ? "YOUR HEALTH" : project.index === "02" ? "YOUR ROUTE" : "YOUR SYSTEM";
+
+  useEffect(() => {
+    if (project.ambient !== "dashboards" || !visual.current) return;
+    const panel = visual.current.closest<HTMLElement>(".project-panel--dashboards");
+    const image = visual.current.querySelector<HTMLElement>(".glitch-project-image");
+    if (!panel || !image) return;
+    const syncAmbient = () => panel.dataset.dashboardTone = image.dataset.imageIndex === "1" ? "amber" : "violet";
+    syncAmbient();
+    const observer = new MutationObserver(syncAmbient);
+    observer.observe(image, { attributes: true, attributeFilter: ["data-image-index"] });
+    return () => observer.disconnect();
+  }, [enabled, project.ambient]);
+
   return (
-    <div className={`product-visual product-visual--${project.tone}`} aria-hidden="true">
+    <div ref={visual} className={`product-visual product-visual--${project.tone}`} aria-hidden="true">
       <div className="visual-top"><span>{project.name}</span><i /><i /><i /></div>
       <div className="visual-canvas">
         <div className="visual-orbit" />
@@ -48,15 +62,23 @@ export default function ProjectsShowcase() {
   const [loadedMedia, setLoadedMedia] = useState(() => new Set([0]));
 
   useEffect(() => {
-    if (!root.current || !projects[0].heroMedia || !projects[1].heroMedia) return;
+    if (!root.current) return;
     let cancelled = false;
     const observer = new IntersectionObserver(([entry]) => {
       if (!entry.isIntersecting) return;
-      void preloadProjectImage(projects[0].heroMedia!.images[0], "(max-width: 900px) 94vw, 58vw").then(() => {
-        if (cancelled) return;
-        setLoadedMedia((current) => new Set(current).add(1));
-        return preloadProjectImage(projects[1].heroMedia!.images[0], "(max-width: 900px) 94vw, 58vw");
-      });
+      void (async () => {
+        const sizes = "(max-width: 900px) 94vw, 58vw";
+        for (let projectIndex = 0; projectIndex < projects.length; projectIndex += 1) {
+          const heroMedia = projects[projectIndex].heroMedia;
+          if (!heroMedia) continue;
+          const imagesToWarm = projects[projectIndex].ambient === "dashboards" ? heroMedia.images : heroMedia.images.slice(0, 1);
+          for (const image of imagesToWarm) {
+            await preloadProjectImage(image, sizes);
+            if (cancelled) return;
+          }
+          setLoadedMedia((current) => new Set(current).add(projectIndex));
+        }
+      })();
       observer.disconnect();
     }, { rootMargin: "150% 0px 150% 0px" });
     observer.observe(root.current);
@@ -82,10 +104,14 @@ export default function ProjectsShowcase() {
           defaults: { ease: "none" },
           scrollTrigger: {
             id: "projects-horizontal", trigger: stage.current, start: "top top", end: () => `+=${distance() / travelShare}`,
-            pin: true, pinSpacing: true, scrub: mobile ? .32 : 1.05, anticipatePin: mobile ? .5 : 1, invalidateOnRefresh: true,
+            pin: true, pinSpacing: true, scrub: mobile ? .32 : .65, anticipatePin: mobile ? .5 : 1, invalidateOnRefresh: true,
             onRefreshInit: syncViewport,
             onUpdate: (self) => {
               root.current?.style.setProperty("--projects-progress", `${self.progress}`);
+              const panels = track.current?.querySelectorAll<HTMLElement>(".project-panel");
+              const horizontalProgress = gsap.utils.clamp(0, 1, (self.progress - 0.06) / travelShare);
+              const activeIndex = Math.round(horizontalProgress * Math.max(0, (panels?.length ?? 1) - 1));
+              panels?.forEach((panel, index) => panel.dataset.projectActive = index === activeIndex ? "true" : "false");
             },
           },
         });
@@ -121,7 +147,7 @@ export default function ProjectsShowcase() {
         <div className="projects-stage-chrome" aria-hidden="true"><span>SELECTED WORK / 2026</span><span className="stage-progress"><i /></span><span>03 PROJECT SYSTEMS</span></div>
         <div ref={track} className="projects-track" role="region" aria-label="Projects. Continue scrolling vertically to move through the project stories." tabIndex={0}>
           {projects.map((project, projectIndex) => (
-            <article className={`project-panel project-panel--${project.tone}${project.ambient ? ` project-panel--${project.ambient}` : ""}`} key={project.name} role="group" aria-label={`Project ${project.index} of ${projects.length}: ${project.name}`}>
+            <article className={`project-panel project-panel--${project.tone}${project.ambient ? ` project-panel--${project.ambient}` : ""}`} data-project-active={projectIndex === 0 ? "true" : "false"} data-dashboard-tone={project.ambient === "dashboards" ? "violet" : undefined} key={project.name} role="group" aria-label={`Project ${project.index} of ${projects.length}: ${project.name}`}>
               <div className="project-copy">
                 <div className="project-kicker" data-project-reveal><span>{project.index}</span>{project.type}</div>
                 <h3 data-project-reveal>{project.name}</h3><p data-project-reveal>{project.statement}</p>

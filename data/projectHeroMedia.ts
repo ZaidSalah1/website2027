@@ -5,6 +5,8 @@ import seha3 from "../imgs/optimized/seha3.webp";
 import seha4 from "../imgs/seha4.png";
 import drevr1 from "../imgs/drevr1.png";
 import drevr2 from "../imgs/drevr2.png";
+import dashboard1 from "../imgs/dashboard1.png";
+import dashboard2 from "../imgs/dashboard2.png";
 
 import foodApo from "../imgs/optimized/foodApo.webp";
 import foodApo1 from "../imgs/optimized/foodApo1.webp";
@@ -37,10 +39,15 @@ export const projectHeroMedia: Record<string, ProjectHeroMedia> = {
     intervalMs: 3500,
     temporaryTestImages: true,
   },
+  "dashboard-systems": {
+    images: [dashboard1, dashboard2],
+    transition: "glitch",
+    intervalMs: 3500,
+  },
   "restaurant-preview": {
     images: [foodApo],
     transition: "glitch",
-    intervalMs: 4500,
+    intervalMs: 3500,
     temporaryTestImages: true,
   },
   "commerce-preview": {
