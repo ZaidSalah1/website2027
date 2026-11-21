@@ -9,7 +9,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build --webpack",
-    "start": "next start"
+    "start": "next start",
+    "optimize:images": "node scripts/optimize-project-images.mjs"
   },
   "dependencies": {
     "autoprefixer": "^10.4.22",

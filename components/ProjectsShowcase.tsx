@@ -57,6 +57,7 @@ function ProductVisual({ project, critical, enabled }: { project: Project; criti
 export default function ProjectsShowcase() {
   const { openProject } = useProjectDetails();
   const root = useRef<HTMLElement>(null);
+  const prelude = useRef<HTMLDivElement>(null);
   const stage = useRef<HTMLDivElement>(null);
   const track = useRef<HTMLDivElement>(null);
   const [loadedMedia, setLoadedMedia] = useState(() => new Set([0]));
@@ -91,6 +92,28 @@ export default function ProjectsShowcase() {
     const context = gsap.context(() => {
       const media = gsap.matchMedia();
       media.add("(prefers-reduced-motion: no-preference)", () => {
+        const intro = gsap.timeline({
+          defaults: { ease: "none" },
+          scrollTrigger: {
+            id: "projects-prelude-transition",
+            trigger: prelude.current,
+            start: "top 84%",
+            end: "bottom 10%",
+            scrub: window.matchMedia("(max-width: 639px)").matches ? .22 : .45,
+            invalidateOnRefresh: true,
+          },
+        });
+        intro
+          .fromTo("[data-prelude-word]", { yPercent: 76, opacity: 0 }, { yPercent: 0, opacity: 1, duration: .28, stagger: .055, ease: "power2.out" }, 0)
+          .fromTo(".prelude-copy, .projects-direction", { y: 18, opacity: 0 }, { y: 0, opacity: 1, duration: .24, stagger: .045, ease: "power2.out" }, .08)
+          .to(".prelude-built", { x: () => window.innerWidth < 640 ? -10 : -30, scale: .97, opacity: .72, duration: .36, ease: "power1.inOut" }, .4)
+          .to(".prelude-move", { x: () => window.innerWidth < 640 ? 12 : 38, scale: 1.025, duration: .36, ease: "power1.inOut" }, .4)
+          .fromTo(".projects-direction-line", { scaleX: 0 }, { scaleX: 1, duration: .34, ease: "power2.inOut" }, .42)
+          .to(".projects-direction-arrow", { rotate: -90, color: "var(--project-accent)", duration: .28, ease: "power2.inOut" }, .5)
+          .to(".projects-direction-label--vertical", { opacity: .35, duration: .2 }, .55)
+          .to(".projects-direction-label--horizontal", { opacity: 1, duration: .2 }, .55)
+          .to(".projects-prelude h2, .prelude-copy", { y: -12, opacity: .24, duration: .22, ease: "power1.in" }, .78);
+
         const syncViewport = () => root.current?.style.setProperty("--story-viewport", `${stage.current?.clientWidth ?? window.innerWidth}px`);
         syncViewport();
         const distance = () => {
@@ -136,11 +159,12 @@ export default function ProjectsShowcase() {
 
   return (
     <section ref={root} id="hero-end" className="projects-section" aria-labelledby="projects-heading">
-      <div className="projects-prelude" id="projects">
+      <div ref={prelude} className="projects-prelude" id="projects">
         <div><p>02 / SELECTED WORK</p><span>SCROLL-DRIVEN PRODUCT STORIES</span></div>
-        <h2 id="projects-heading">BUILT TO<br /><em>MOVE.</em></h2>
+        <h2 id="projects-heading" aria-label="Built to move"><span className="prelude-line"><span className="prelude-built" data-prelude-word>BUILT TO</span></span><span className="prelude-line"><em className="prelude-move" data-prelude-word>MOVE.</em></span></h2>
         <p className="prelude-copy">A selection of products shaped from first principles—where interface, engineering, and real-world use move as one system.</p>
         <div className="axis-cue" aria-hidden="true">VERTICAL <span>↓</span> HORIZONTAL <span>→</span></div>
+        <div className="projects-direction" aria-hidden="true"><span className="projects-direction-label--vertical">VERTICAL FLOW</span><i className="projects-direction-line" /><b className="projects-direction-arrow">&#8595;</b><span className="projects-direction-label--horizontal">HORIZONTAL STORY</span></div>
       </div>
 
       <div ref={stage} className="projects-stage">

@@ -1,20 +1,21 @@
 import type { StaticImageData } from "next/image";
-import seha1 from "../imgs/optimized/seha1.webp";
-import seha2 from "../imgs/optimized/seha2.webp";
-import seha3 from "../imgs/optimized/seha3.webp";
-import seha4 from "../imgs/seha4.png";
-import drevr1 from "../imgs/drevr1.png";
-import drevr2 from "../imgs/drevr2.png";
-import dashboard1 from "../imgs/dashboard1.png";
-import dashboard2 from "../imgs/dashboard2.png";
+import seha1 from "../imgs/optimized/seha-plus/patient/seha1.webp";
+import seha2 from "../imgs/optimized/seha-plus/facility/seha2.webp";
+import seha3 from "../imgs/optimized/seha-plus/patient/seha3.webp";
+import seha4 from "../imgs/optimized/seha-plus/doctor/seha4.webp";
+import drevr1 from "../imgs/optimized/drevr/passenger/drevr1.webp";
+import drevr3 from "../imgs/optimized/drevr/passenger/drevr3.webp";
+import drevr2 from "../imgs/optimized/drevr/driver/drevr2.webp";
+import dashboard1 from "../imgs/optimized/dashboards/dashboard1.webp";
+import dashboard2 from "../imgs/optimized/dashboards/dashboard2.webp";
 
-import foodApo from "../imgs/optimized/foodApo.webp";
-import foodApo1 from "../imgs/optimized/foodApo1.webp";
-import store1 from "../imgs/optimized/store1.webp";
-import store2 from "../imgs/optimized/store2.webp";
-import carRental from "../imgs/optimized/carRental.webp";
-import carRental1 from "../imgs/optimized/carRental1.webp";
-import athkar1 from "../imgs/optimized/athkar1.webp";
+import foodApo from "../imgs/optimized/restaurant/foodApo.webp";
+import foodApo1 from "../imgs/optimized/restaurant/foodApo1.webp";
+import store1 from "../imgs/optimized/ecommerce/store1.webp";
+import store2 from "../imgs/optimized/ecommerce/store2.webp";
+import carRental from "../imgs/optimized/car-rental/carRental.webp";
+import carRental1 from "../imgs/optimized/car-rental/carRental1.webp";
+import athkar1 from "../imgs/optimized/athkar/athkar1.webp";
 
 export type ProjectHeroMedia = {
   images: StaticImageData[];
@@ -34,7 +35,7 @@ export const projectHeroMedia: Record<string, ProjectHeroMedia> = {
     temporaryTestImages: true,
   },
   drevr: {
-    images: [drevr1, drevr2],
+    images: [drevr1,drevr3, drevr2],
     transition: "glitch",
     intervalMs: 3500,
     temporaryTestImages: true,

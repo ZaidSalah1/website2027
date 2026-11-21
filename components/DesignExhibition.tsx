@@ -5,15 +5,15 @@ import Image from "next/image";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { preloadProjectImage } from "./GlitchProjectImage";
-import carRentalOff from "../imgs/carRentWeb1.png";
-import carRentalOn from "../imgs/carRentWeb2.png";
+import carRentalOff from "../imgs/optimized/car-rental/carRentWeb1.webp";
+import carRentalOn from "../imgs/optimized/car-rental/carRentWeb2.webp";
 
 const nikeVideoSource = "/imgs/nike.mp4";
 
 const designProjects = [
-  { index: "02", name: "WATCH APP DESIGN", image: "/imgs/optimized/walletUIUX.webp", accent: "#d9a27f", layout: "watch" },
-  { index: "03", name: "CRYPTO WALLET DESIGN", image: "/imgs/optimized/cryptoUIUX.webp", accent: "#ff5b3d", layout: "crypto" },
-  { index: "04", name: "CAR APP DESIGN", image: "/imgs/optimized/carUIUX.webp", accent: "#d7a36d", layout: "car" },
+  { index: "02", name: "WATCH APP DESIGN", image: "/imgs/optimized/uiux/walletUIUX.webp", accent: "#d9a27f", layout: "watch" },
+  { index: "03", name: "CRYPTO WALLET DESIGN", image: "/imgs/optimized/uiux/cryptoUIUX.webp", accent: "#ff5b3d", layout: "crypto" },
+  { index: "04", name: "CAR APP DESIGN", image: "/imgs/optimized/uiux/carUIUX.webp", accent: "#d7a36d", layout: "car" },
 ];
 
 export default function DesignExhibition() {

@@ -3,34 +3,7 @@
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import type { IconType } from "react-icons";
-import {
-  SiDocker, SiExpo, SiFirebase, SiGithub, SiGreensock, SiMongodb,
-  SiNextdotjs, SiNodedotjs, SiPostgresql, SiPrisma, SiReact, SiTailwindcss,
-  SiTypescript,
-} from "react-icons/si";
-
-type SkillGroup = "Frontend & Mobile" | "Backend & Database" | "Infrastructure" | "UI & Motion";
-type Skill = { code: string; name: string; use: string; group: SkillGroup; icon: IconType };
-
-const skills: Skill[] = [
-  { code:"RE", name:"React", use:"INTERFACE SYSTEMS", group:"Frontend & Mobile", icon:SiReact },
-  { code:"RN", name:"React Native", use:"CROSS-PLATFORM MOBILE", group:"Frontend & Mobile", icon:SiReact },
-  { code:"TS", name:"TypeScript", use:"TYPED APPLICATIONS", group:"Frontend & Mobile", icon:SiTypescript },
-  { code:"NO", name:"Node.js", use:"SERVER RUNTIMES", group:"Backend & Database", icon:SiNodedotjs },
-  { code:"NX", name:"Next.js", use:"FULL-STACK WEB", group:"Frontend & Mobile", icon:SiNextdotjs },
-  { code:"EX", name:"Expo", use:"MOBILE DELIVERY", group:"Frontend & Mobile", icon:SiExpo },
-  { code:"MO", name:"MongoDB", use:"DOCUMENT DATA", group:"Backend & Database", icon:SiMongodb },
-  { code:"PG", name:"PostgreSQL", use:"RELATIONAL DATA", group:"Backend & Database", icon:SiPostgresql },
-  { code:"PR", name:"Prisma", use:"DATA TOOLING", group:"Backend & Database", icon:SiPrisma },
-  { code:"FB", name:"Firebase", use:"AUTH & REAL-TIME", group:"Backend & Database", icon:SiFirebase },
-  { code:"DO", name:"Docker", use:"CONTAINER WORKFLOWS", group:"Infrastructure", icon:SiDocker },
-  { code:"GS", name:"GSAP", use:"MOTION SYSTEMS", group:"UI & Motion", icon:SiGreensock },
-  { code:"TW", name:"Tailwind CSS", use:"DESIGN SYSTEMS", group:"UI & Motion", icon:SiTailwindcss },
-  { code:"GI", name:"Git / GitHub", use:"VERSION CONTROL", group:"Infrastructure", icon:SiGithub },
-];
-
-const skillGroups: SkillGroup[] = ["Frontend & Mobile", "Backend & Database", "Infrastructure", "UI & Motion"];
+import { skillGroups, skills } from "../data/skills";
 
 function SkillCard({ code, name, use, index }: { code: string; name: string; use: string; index: number }) {
   return (

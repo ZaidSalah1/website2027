@@ -1,146 +1,482 @@
 [
   {
     "source": "imgs/seha1.png",
-    "output": "imgs/optimized/seha1.webp",
+    "output": "imgs/optimized/seha-plus/patient/seha1.webp",
     "beforeBytes": 4662923,
-    "afterBytes": 296840,
-    "reductionPercent": 93.6,
+    "afterBytes": 321532,
+    "reductionPercent": 93.1,
     "beforeDimensions": "4096x3526",
-    "afterDimensions": "2560x2204"
+    "afterDimensions": "2560x2204",
+    "alphaPreserved": true
   },
   {
     "source": "imgs/seha2.png",
-    "output": "imgs/optimized/seha2.webp",
-    "beforeBytes": 1521333,
-    "afterBytes": 180252,
-    "reductionPercent": 88.2,
-    "beforeDimensions": "1642x958",
-    "afterDimensions": "1642x958"
+    "output": "imgs/optimized/seha-plus/facility/seha2.webp",
+    "beforeBytes": 260811,
+    "afterBytes": 87774,
+    "reductionPercent": 66.3,
+    "beforeDimensions": "1053x658",
+    "afterDimensions": "1053x658",
+    "alphaPreserved": true
   },
   {
     "source": "imgs/seha3.png",
-    "output": "imgs/optimized/seha3.webp",
+    "output": "imgs/optimized/seha-plus/patient/seha3.webp",
     "beforeBytes": 8640496,
-    "afterBytes": 345440,
-    "reductionPercent": 96,
+    "afterBytes": 376240,
+    "reductionPercent": 95.6,
     "beforeDimensions": "4096x3882",
-    "afterDimensions": "2560x2426"
+    "afterDimensions": "2560x2426",
+    "alphaPreserved": true
   },
   {
-    "source": "imgs/seha22.png",
-    "output": "imgs/optimized/seha22.webp",
-    "beforeBytes": 260811,
-    "afterBytes": 80268,
-    "reductionPercent": 69.2,
-    "beforeDimensions": "1053x658",
-    "afterDimensions": "1053x658"
+    "source": "imgs/seha4.png",
+    "output": "imgs/optimized/seha-plus/doctor/seha4.webp",
+    "beforeBytes": 1501309,
+    "afterBytes": 244914,
+    "reductionPercent": 83.7,
+    "beforeDimensions": "1671x941",
+    "afterDimensions": "1671x941",
+    "alphaPreserved": true
   },
   {
     "source": "imgs/drevr1.png",
-    "output": "imgs/optimized/drevr1.webp",
-    "beforeBytes": 5969923,
-    "afterBytes": 682210,
-    "reductionPercent": 88.6,
-    "beforeDimensions": "3076x2861",
-    "afterDimensions": "2560x2381"
+    "output": "imgs/optimized/drevr/passenger/drevr1.webp",
+    "beforeBytes": 1709043,
+    "afterBytes": 267306,
+    "reductionPercent": 84.4,
+    "beforeDimensions": "1300x1209",
+    "afterDimensions": "1300x1209",
+    "alphaPreserved": true
+  },
+  {
+    "source": "imgs/drevr2.png",
+    "output": "imgs/optimized/drevr/driver/drevr2.webp",
+    "beforeBytes": 1504412,
+    "afterBytes": 191438,
+    "reductionPercent": 87.3,
+    "beforeDimensions": "1775x3241",
+    "afterDimensions": "1402x2560",
+    "alphaPreserved": true
+  },
+  {
+    "source": "imgs/dashboard1.png",
+    "output": "imgs/optimized/dashboards/dashboard1.webp",
+    "beforeBytes": 1733669,
+    "afterBytes": 239334,
+    "reductionPercent": 86.2,
+    "beforeDimensions": "1586x992",
+    "afterDimensions": "1586x992",
+    "alphaPreserved": true
+  },
+  {
+    "source": "imgs/dashboard2.png",
+    "output": "imgs/optimized/dashboards/dashboard2.webp",
+    "beforeBytes": 1860741,
+    "afterBytes": 254740,
+    "reductionPercent": 86.3,
+    "beforeDimensions": "1536x1024",
+    "afterDimensions": "1536x1024",
+    "alphaPreserved": true
   },
   {
     "source": "imgs/athkar1.png",
-    "output": "imgs/optimized/athkar1.webp",
+    "output": "imgs/optimized/athkar/athkar1.webp",
     "beforeBytes": 1568797,
-    "afterBytes": 189398,
-    "reductionPercent": 87.9,
+    "afterBytes": 207506,
+    "reductionPercent": 86.8,
     "beforeDimensions": "1122x1402",
-    "afterDimensions": "1122x1402"
+    "afterDimensions": "1122x1402",
+    "alphaPreserved": true
   },
   {
     "source": "imgs/athkar2.png",
-    "output": "imgs/optimized/athkar2.webp",
+    "output": "imgs/optimized/athkar/athkar2.webp",
     "beforeBytes": 198636,
-    "afterBytes": 44952,
-    "reductionPercent": 77.4,
+    "afterBytes": 47816,
+    "reductionPercent": 75.9,
     "beforeDimensions": "436x550",
-    "afterDimensions": "436x550"
+    "afterDimensions": "436x550",
+    "alphaPreserved": true
   },
   {
     "source": "imgs/foodApo.png",
-    "output": "imgs/optimized/foodApo.webp",
+    "output": "imgs/optimized/restaurant/foodApo.webp",
     "beforeBytes": 1990941,
-    "afterBytes": 300452,
-    "reductionPercent": 84.9,
+    "afterBytes": 325072,
+    "reductionPercent": 83.7,
     "beforeDimensions": "1414x1112",
-    "afterDimensions": "1414x1112"
+    "afterDimensions": "1414x1112",
+    "alphaPreserved": true
   },
   {
     "source": "imgs/foodApo1.png",
-    "output": "imgs/optimized/foodApo1.webp",
+    "output": "imgs/optimized/restaurant/foodApo1.webp",
     "beforeBytes": 421704,
-    "afterBytes": 82134,
-    "reductionPercent": 80.5,
+    "afterBytes": 89046,
+    "reductionPercent": 78.9,
     "beforeDimensions": "661x522",
-    "afterDimensions": "661x522"
+    "afterDimensions": "661x522",
+    "alphaPreserved": true
   },
   {
     "source": "imgs/store1.png",
-    "output": "imgs/optimized/store1.webp",
+    "output": "imgs/optimized/ecommerce/store1.webp",
     "beforeBytes": 1354609,
-    "afterBytes": 174684,
-    "reductionPercent": 87.1,
+    "afterBytes": 184382,
+    "reductionPercent": 86.4,
     "beforeDimensions": "1672x941",
-    "afterDimensions": "1672x941"
+    "afterDimensions": "1672x941",
+    "alphaPreserved": true
   },
   {
     "source": "imgs/store2.png",
-    "output": "imgs/optimized/store2.webp",
+    "output": "imgs/optimized/ecommerce/store2.webp",
     "beforeBytes": 654748,
-    "afterBytes": 148434,
-    "reductionPercent": 77.3,
+    "afterBytes": 157388,
+    "reductionPercent": 76,
     "beforeDimensions": "1480x965",
-    "afterDimensions": "1480x965"
+    "afterDimensions": "1480x965",
+    "alphaPreserved": true
   },
   {
     "source": "imgs/carRental.png",
-    "output": "imgs/optimized/carRental.webp",
+    "output": "imgs/optimized/car-rental/carRental.webp",
     "beforeBytes": 1690631,
-    "afterBytes": 195926,
-    "reductionPercent": 88.4,
+    "afterBytes": 208826,
+    "reductionPercent": 87.6,
     "beforeDimensions": "1221x1288",
-    "afterDimensions": "1221x1288"
+    "afterDimensions": "1221x1288",
+    "alphaPreserved": true
   },
   {
     "source": "imgs/carRental1.png",
-    "output": "imgs/optimized/carRental1.webp",
+    "output": "imgs/optimized/car-rental/carRental1.webp",
     "beforeBytes": 212992,
-    "afterBytes": 53442,
-    "reductionPercent": 74.9,
+    "afterBytes": 57064,
+    "reductionPercent": 73.2,
     "beforeDimensions": "567x598",
-    "afterDimensions": "567x598"
+    "afterDimensions": "567x598",
+    "alphaPreserved": true
+  },
+  {
+    "source": "imgs/carRentWeb1.png",
+    "output": "imgs/optimized/car-rental/carRentWeb1.webp",
+    "beforeBytes": 1084107,
+    "afterBytes": 196582,
+    "reductionPercent": 81.9,
+    "beforeDimensions": "1686x562",
+    "afterDimensions": "1686x562",
+    "alphaPreserved": true
+  },
+  {
+    "source": "imgs/carRentWeb2.png",
+    "output": "imgs/optimized/car-rental/carRentWeb2.webp",
+    "beforeBytes": 1088235,
+    "afterBytes": 197276,
+    "reductionPercent": 81.9,
+    "beforeDimensions": "1686x562",
+    "afterDimensions": "1686x562",
+    "alphaPreserved": true
+  },
+  {
+    "source": "imgs/optimized/seha-plus/patient/legacy/patient2.png",
+    "output": "imgs/optimized/seha-plus/patient/patient2.webp",
+    "beforeBytes": 424242,
+    "afterBytes": 87758,
+    "reductionPercent": 79.3,
+    "beforeDimensions": "990x647",
+    "afterDimensions": "990x647",
+    "alphaPreserved": true
+  },
+  {
+    "source": "imgs/optimized/seha-plus/patient/legacy/patient3.png",
+    "output": "imgs/optimized/seha-plus/patient/patient3.webp",
+    "beforeBytes": 233796,
+    "afterBytes": 53912,
+    "reductionPercent": 76.9,
+    "beforeDimensions": "651x647",
+    "afterDimensions": "651x647",
+    "alphaPreserved": true
+  },
+  {
+    "source": "imgs/optimized/seha-plus/patient/legacy/patient4.png",
+    "output": "imgs/optimized/seha-plus/patient/patient4.webp",
+    "beforeBytes": 512475,
+    "afterBytes": 106566,
+    "reductionPercent": 79.2,
+    "beforeDimensions": "1280x720",
+    "afterDimensions": "1280x720",
+    "alphaPreserved": true
+  },
+  {
+    "source": "imgs/optimized/seha-plus/patient/legacy/patient5.png",
+    "output": "imgs/optimized/seha-plus/patient/patient5.webp",
+    "beforeBytes": 295124,
+    "afterBytes": 68330,
+    "reductionPercent": 76.8,
+    "beforeDimensions": "845x733",
+    "afterDimensions": "845x733",
+    "alphaPreserved": true
+  },
+  {
+    "source": "imgs/optimized/seha-plus/patient/legacy/patient6.png",
+    "output": "imgs/optimized/seha-plus/patient/patient6.webp",
+    "beforeBytes": 550431,
+    "afterBytes": 64734,
+    "reductionPercent": 88.2,
+    "beforeDimensions": "669x698",
+    "afterDimensions": "669x698",
+    "alphaPreserved": true
+  },
+  {
+    "source": "imgs/optimized/seha-plus/patient/legacy/patient7.png",
+    "output": "imgs/optimized/seha-plus/patient/patient7.webp",
+    "beforeBytes": 201441,
+    "afterBytes": 51712,
+    "reductionPercent": 74.3,
+    "beforeDimensions": "650x657",
+    "afterDimensions": "650x657",
+    "alphaPreserved": true
+  },
+  {
+    "source": "imgs/optimized/seha-plus/patient/legacy/patient8.png",
+    "output": "imgs/optimized/seha-plus/patient/patient8.webp",
+    "beforeBytes": 273175,
+    "afterBytes": 44708,
+    "reductionPercent": 83.6,
+    "beforeDimensions": "908x641",
+    "afterDimensions": "908x641",
+    "alphaPreserved": true
+  },
+  {
+    "source": "imgs/optimized/seha-plus/patient/legacy/patient9.png",
+    "output": "imgs/optimized/seha-plus/patient/patient9.webp",
+    "beforeBytes": 235233,
+    "afterBytes": 55340,
+    "reductionPercent": 76.5,
+    "beforeDimensions": "703x647",
+    "afterDimensions": "703x647",
+    "alphaPreserved": true
+  },
+  {
+    "source": "imgs/optimized/seha-plus/patient/legacy/patient10.png",
+    "output": "imgs/optimized/seha-plus/patient/patient10.webp",
+    "beforeBytes": 167602,
+    "afterBytes": 41042,
+    "reductionPercent": 75.5,
+    "beforeDimensions": "653x647",
+    "afterDimensions": "653x647",
+    "alphaPreserved": true
+  },
+  {
+    "source": "imgs/optimized/seha-plus/patient/legacy/patient11.png",
+    "output": "imgs/optimized/seha-plus/patient/patient11.webp",
+    "beforeBytes": 336457,
+    "afterBytes": 77364,
+    "reductionPercent": 77,
+    "beforeDimensions": "836x474",
+    "afterDimensions": "836x474",
+    "alphaPreserved": true
+  },
+  {
+    "source": "imgs/optimized/seha-plus/doctor/legacy/dr1.png",
+    "output": "imgs/optimized/seha-plus/doctor/dr1.webp",
+    "beforeBytes": 117744,
+    "afterBytes": 29928,
+    "reductionPercent": 74.6,
+    "beforeDimensions": "312x647",
+    "afterDimensions": "312x647",
+    "alphaPreserved": true
+  },
+  {
+    "source": "imgs/optimized/seha-plus/doctor/legacy/dr2.png",
+    "output": "imgs/optimized/seha-plus/doctor/dr2.webp",
+    "beforeBytes": 1230071,
+    "afterBytes": 75792,
+    "reductionPercent": 93.8,
+    "beforeDimensions": "1591x988",
+    "afterDimensions": "1591x988",
+    "alphaPreserved": true
+  },
+  {
+    "source": "imgs/optimized/seha-plus/doctor/legacy/dr3.png",
+    "output": "imgs/optimized/seha-plus/doctor/dr3.webp",
+    "beforeBytes": 1386290,
+    "afterBytes": 88716,
+    "reductionPercent": 93.6,
+    "beforeDimensions": "1584x993",
+    "afterDimensions": "1584x993",
+    "alphaPreserved": true
+  },
+  {
+    "source": "imgs/optimized/seha-plus/doctor/legacy/dr4.png",
+    "output": "imgs/optimized/seha-plus/doctor/dr4.webp",
+    "beforeBytes": 1283272,
+    "afterBytes": 82034,
+    "reductionPercent": 93.6,
+    "beforeDimensions": "1587x991",
+    "afterDimensions": "1587x991",
+    "alphaPreserved": true
+  },
+  {
+    "source": "imgs/optimized/seha-plus/facility/legacy/facility2.png",
+    "output": "imgs/optimized/seha-plus/facility/facility2.webp",
+    "beforeBytes": 270583,
+    "afterBytes": 78712,
+    "reductionPercent": 70.9,
+    "beforeDimensions": "976x537",
+    "afterDimensions": "976x537",
+    "alphaPreserved": true
+  },
+  {
+    "source": "imgs/optimized/seha-plus/facility/legacy/facility3.png",
+    "output": "imgs/optimized/seha-plus/facility/facility3.webp",
+    "beforeBytes": 353110,
+    "afterBytes": 100910,
+    "reductionPercent": 71.4,
+    "beforeDimensions": "1190x767",
+    "afterDimensions": "1190x767",
+    "alphaPreserved": true
+  },
+  {
+    "source": "imgs/optimized/seha-plus/facility/legacy/facility4.png",
+    "output": "imgs/optimized/seha-plus/facility/facility4.webp",
+    "beforeBytes": 195862,
+    "afterBytes": 75022,
+    "reductionPercent": 61.7,
+    "beforeDimensions": "834x607",
+    "afterDimensions": "834x607",
+    "alphaPreserved": true
+  },
+  {
+    "source": "imgs/optimized/seha-plus/facility/legacy/facility6.png",
+    "output": "imgs/optimized/seha-plus/facility/facility6.webp",
+    "beforeBytes": 186416,
+    "afterBytes": 68286,
+    "reductionPercent": 63.4,
+    "beforeDimensions": "1064x635",
+    "afterDimensions": "1064x635",
+    "alphaPreserved": true
+  },
+  {
+    "source": "imgs/optimized/seha-plus/facility/legacy/facility7.png",
+    "output": "imgs/optimized/seha-plus/facility/facility7.webp",
+    "beforeBytes": 656465,
+    "afterBytes": 184738,
+    "reductionPercent": 71.9,
+    "beforeDimensions": "1144x1607",
+    "afterDimensions": "1144x1607",
+    "alphaPreserved": true
+  },
+  {
+    "source": "imgs/optimized/drevr/passenger/legacy/drevr3.png",
+    "output": "imgs/optimized/drevr/passenger/drevr3.webp",
+    "beforeBytes": 491310,
+    "afterBytes": 92804,
+    "reductionPercent": 81.1,
+    "beforeDimensions": "1103x978",
+    "afterDimensions": "1103x978",
+    "alphaPreserved": true
+  },
+  {
+    "source": "imgs/optimized/drevr/passenger/legacy/drevr5.png",
+    "output": "imgs/optimized/drevr/passenger/drevr5.webp",
+    "beforeBytes": 1363322,
+    "afterBytes": 161188,
+    "reductionPercent": 88.2,
+    "beforeDimensions": "1365x2936",
+    "afterDimensions": "1190x2560",
+    "alphaPreserved": true
+  },
+  {
+    "source": "imgs/optimized/drevr/passenger/legacy/drevr6.png",
+    "output": "imgs/optimized/drevr/passenger/drevr6.webp",
+    "beforeBytes": 1197868,
+    "afterBytes": 150146,
+    "reductionPercent": 87.5,
+    "beforeDimensions": "1364x2833",
+    "afterDimensions": "1233x2560",
+    "alphaPreserved": true
+  },
+  {
+    "source": "imgs/optimized/drevr/passenger/legacy/drevr7.png",
+    "output": "imgs/optimized/drevr/passenger/drevr7.webp",
+    "beforeBytes": 1463412,
+    "afterBytes": 206392,
+    "reductionPercent": 85.9,
+    "beforeDimensions": "1364x2833",
+    "afterDimensions": "1233x2560",
+    "alphaPreserved": true
+  },
+  {
+    "source": "imgs/optimized/drevr/passenger/legacy/drevr8.png",
+    "output": "imgs/optimized/drevr/passenger/drevr8.webp",
+    "beforeBytes": 935464,
+    "afterBytes": 137182,
+    "reductionPercent": 85.3,
+    "beforeDimensions": "1364x2833",
+    "afterDimensions": "1233x2560",
+    "alphaPreserved": true
+  },
+  {
+    "source": "imgs/optimized/drevr/passenger/legacy/drevr9.png",
+    "output": "imgs/optimized/drevr/passenger/drevr9.webp",
+    "beforeBytes": 1047948,
+    "afterBytes": 155692,
+    "reductionPercent": 85.1,
+    "beforeDimensions": "1364x2833",
+    "afterDimensions": "1233x2560",
+    "alphaPreserved": true
+  },
+  {
+    "source": "imgs/optimized/drevr/driver/legacy/drevr22.png",
+    "output": "imgs/optimized/drevr/driver/drevr22.webp",
+    "beforeBytes": 1241108,
+    "afterBytes": 183108,
+    "reductionPercent": 85.2,
+    "beforeDimensions": "3197x3197",
+    "afterDimensions": "2560x2560",
+    "alphaPreserved": true
+  },
+  {
+    "source": "imgs/optimized/drevr/driver/legacy/drevr222.png",
+    "output": "imgs/optimized/drevr/driver/drevr222.webp",
+    "beforeBytes": 1294060,
+    "afterBytes": 178762,
+    "reductionPercent": 86.2,
+    "beforeDimensions": "3197x3197",
+    "afterDimensions": "2560x2560",
+    "alphaPreserved": true
   },
   {
     "source": "public/imgs/walletUIUX.png",
-    "output": "public/imgs/optimized/walletUIUX.webp",
+    "output": "public/imgs/optimized/uiux/walletUIUX.webp",
     "beforeBytes": 473317,
-    "afterBytes": 74786,
-    "reductionPercent": 84.2,
+    "afterBytes": 80128,
+    "reductionPercent": 83.1,
     "beforeDimensions": "763x853",
-    "afterDimensions": "763x853"
+    "afterDimensions": "763x853",
+    "alphaPreserved": true
   },
   {
     "source": "public/imgs/cryptoUIUX.png",
-    "output": "public/imgs/optimized/cryptoUIUX.webp",
+    "output": "public/imgs/optimized/uiux/cryptoUIUX.webp",
     "beforeBytes": 237252,
-    "afterBytes": 39268,
-    "reductionPercent": 83.4,
+    "afterBytes": 42696,
+    "reductionPercent": 82,
     "beforeDimensions": "614x808",
-    "afterDimensions": "614x808"
+    "afterDimensions": "614x808",
+    "alphaPreserved": true
   },
   {
     "source": "public/imgs/carUIUX.png",
-    "output": "public/imgs/optimized/carUIUX.webp",
+    "output": "public/imgs/optimized/uiux/carUIUX.webp",
     "beforeBytes": 325812,
-    "afterBytes": 61988,
-    "reductionPercent": 81,
+    "afterBytes": 66708,
+    "reductionPercent": 79.5,
     "beforeDimensions": "692x758",
-    "afterDimensions": "692x758"
+    "afterDimensions": "692x758",
+    "alphaPreserved": true
   }
 ]

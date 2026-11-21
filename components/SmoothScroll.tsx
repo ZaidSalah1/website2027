@@ -30,6 +30,22 @@ export default function SmoothScroll() {
 
     const tick = (time: number) => lenis?.raf(time * 1000);
 
+    const restoreModalPosition = (event: Event) => {
+      const restoreY = (event as CustomEvent<number>).detail;
+      if (!Number.isFinite(restoreY)) return;
+      window.scrollTo({ top: restoreY, left: 0, behavior: "instant" });
+      if (!lenis) return;
+      lenis.start();
+      lenis.scrollTo(restoreY, { immediate: true, force: true });
+      delete document.body.dataset.projectModalRestoreY;
+      if (readyFrame) cancelAnimationFrame(readyFrame);
+      readyFrame = requestAnimationFrame(() => {
+        ScrollTrigger.refresh();
+        window.scrollTo({ top: restoreY, left: 0, behavior: "instant" });
+        lenis?.scrollTo(restoreY, { immediate: true, force: true });
+      });
+    };
+
     const create = () => {
       destroy();
       if (!media.matches || navigator.maxTouchPoints > 0) return;
@@ -56,9 +72,20 @@ export default function SmoothScroll() {
         const locked = document.documentElement.dataset.preloading === "true" || document.body.dataset.projectModalOpen === "true";
         if (locked) lenis.stop();
         else {
+          const restoreValue = document.body.dataset.projectModalRestoreY;
+          const restoreY = restoreValue === undefined ? window.scrollY : Number(restoreValue);
           lenis.start();
-          lenis.scrollTo(window.scrollY, { immediate: true, force: true });
-          readyFrame = requestAnimationFrame(() => ScrollTrigger.refresh());
+          if (Number.isFinite(restoreY)) {
+            window.scrollTo({ top: restoreY, left: 0, behavior: "instant" });
+            lenis.scrollTo(restoreY, { immediate: true, force: true });
+          }
+          delete document.body.dataset.projectModalRestoreY;
+          readyFrame = requestAnimationFrame(() => {
+            ScrollTrigger.refresh();
+            if (Number.isFinite(restoreY)) {
+              lenis?.scrollTo(restoreY, { immediate: true, force: true });
+            }
+          });
         }
       };
 
@@ -69,8 +96,10 @@ export default function SmoothScroll() {
     };
 
     create();
+    window.addEventListener("project-modal-restore", restoreModalPosition);
     media.addEventListener("change", create);
     return () => {
+      window.removeEventListener("project-modal-restore", restoreModalPosition);
       media.removeEventListener("change", create);
       if (readyFrame) cancelAnimationFrame(readyFrame);
       destroy();
