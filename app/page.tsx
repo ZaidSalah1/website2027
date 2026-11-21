@@ -8,18 +8,21 @@ import GlobalDock from "../components/GlobalDock";
 import CinematicProjectGallery from "../components/CinematicProjectGallery";
 import DesignExhibition from "../components/DesignExhibition";
 import ProjectDetailsProvider from "../components/ProjectDetailsProvider";
+import SitePreloader from "../components/SitePreloader";
+import ImpactStatement from "../components/ImpactStatement";
 
 export default function Home() {
   return (
-    <ProjectDetailsProvider><main>
+    <ProjectDetailsProvider><SitePreloader /><main>
       <a className="skip-link" href="#hero-end">Skip introduction</a>
       <Hero />
       <ProjectsShowcase />
       <CinematicProjectGallery />
       <DesignExhibition />
       <ReadyTransition />
-      <TechMatrix />
       <BehindTheBuild />
+      <TechMatrix />
+      <ImpactStatement />
       <ContactConclusion />
       <GlobalDock />
     </main></ProjectDetailsProvider>

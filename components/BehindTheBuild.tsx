@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { MotionPathPlugin } from "gsap/MotionPathPlugin";
 
 type Chapter = { index: string; eyebrow: string; title: string; copy: string; scene: "idea" | "experience" | "engine" | "launch" };
 
@@ -10,7 +11,7 @@ const chapters: Chapter[] = [
   { index: "01", eyebrow: "DISCOVER / DEFINE", title: "THE IDEA", copy: "Start with the real problem. Strip away assumptions. Shape a practical path from need to useful software.", scene: "idea" },
   { index: "02", eyebrow: "DESIGN / INTERACT", title: "THE EXPERIENCE", copy: "Turn intent into an interface that feels clear, responsive, and natural across web and mobile.", scene: "experience" },
   { index: "03", eyebrow: "CONNECT / ORCHESTRATE", title: "THE ENGINE", copy: "Build the systems beneath the surface—data, APIs, identity, integrations, and real-time movement.", scene: "engine" },
-  { index: "04", eyebrow: "VERIFY / RELEASE", title: "THE LAUNCH", copy: "Bring every layer together, verify the product, and move it from development into the hands of real users.", scene: "launch" },
+  { index: "04", eyebrow: "VERIFY / RELEASE", title: "THE LAUNCH", copy: "Bring every layer into alignment, confirm the final release, and activate a product ready for the real world.", scene: "launch" },
 ];
 
 function IdeaScene() {
@@ -53,19 +54,118 @@ function ExperienceScene() {
 }
 
 function EngineScene() {
-  const nodes = [["CLIENT","12%","43%"],["API","39%","20%"],["AUTH","40%","67%"],["DATA","70%","25%"],["EVENTS","73%","66%"],["INTEGRATION","88%","45%"]];
-  return <div className="build-scene engine-scene" aria-hidden="true">
-    <svg className="engine-lines" viewBox="0 0 1000 600"><path d="M120 260 L390 130 L700 150 L880 270"/><path d="M120 260 L400 400 L730 395 L880 270"/><path d="M390 130 L400 400"/><circle className="data-pulse pulse-a" r="5"/><circle className="data-pulse pulse-b" r="5"/></svg>
-    {nodes.map(([name,left,top],i)=><div className={`engine-node node-${i}`} style={{left,top}} key={name}><small>0{i+1}</small><strong>{name}</strong><span>{i===0?"REQUEST":i===5?"RESPONSE":"CONNECTED"}</span></div>)}
-    <div className="engine-status"><i/> SYSTEM FLOW / ACTIVE</div>
+  const scene = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!scene.current) return;
+    gsap.registerPlugin(MotionPathPlugin);
+    const context = gsap.context(() => {
+      const media = gsap.matchMedia();
+      const setup = (suffix: "desktop" | "mobile") => {
+        const timeline = gsap.timeline({ paused:true, repeat:-1, repeatDelay:.75 });
+        const path = (name:string) => `.engine-path--${name}-${suffix}`;
+        const travel = (signal:string, route:string, duration:number) => timeline
+          .set(signal,{opacity:1})
+          .to(signal,{duration,ease:"power1.inOut",motionPath:{path:path(route),align:path(route),alignOrigin:[.5,.5]}},">")
+          .set(signal,{opacity:0});
+
+        travel(".engine-signal--primary","request",.72);
+        timeline.to(".engine-backend",{borderColor:"rgba(101,156,255,.82)",boxShadow:"0 0 2.4rem rgba(76,139,237,.18)",duration:.28,yoyo:true,repeat:1},">");
+        travel(".engine-signal--data","data-out",.58);
+        timeline.to(".engine-database",{borderColor:"rgba(101,156,255,.72)",duration:.2,yoyo:true,repeat:1},"<.32");
+        travel(".engine-signal--data","data-return",.58);
+        travel(".engine-signal--service","integration",.68);
+        timeline.to(".engine-external",{borderColor:"rgba(101,156,255,.68)",duration:.2,yoyo:true,repeat:1},"<.4");
+        travel(".engine-signal--primary","response",.72);
+        travel(".engine-signal--event","realtime",.58);
+        timeline.to(".engine-realtime",{borderColor:"rgba(82,205,211,.72)",duration:.2,yoyo:true,repeat:1},"<.36");
+        travel(".engine-signal--event","events",.72);
+
+        const sync = (entry?:IntersectionObserverEntry) => {
+          const visible = entry ? entry.isIntersecting : Boolean(scene.current && scene.current.getBoundingClientRect().right > 0 && scene.current.getBoundingClientRect().left < innerWidth);
+          if (visible && !document.hidden) timeline.play(); else timeline.pause();
+        };
+        const observer = new IntersectionObserver(([entry])=>sync(entry),{threshold:.28});
+        observer.observe(scene.current!);
+        const visibility = () => sync();
+        document.addEventListener("visibilitychange",visibility);
+        return()=>{observer.disconnect();document.removeEventListener("visibilitychange",visibility);timeline.kill()};
+      };
+      media.add("(min-width:901px) and (prefers-reduced-motion:no-preference)",()=>setup("desktop"));
+      media.add("(max-width:900px) and (prefers-reduced-motion:no-preference)",()=>setup("mobile"));
+      return()=>media.revert();
+    },scene);
+    return()=>context.revert();
+  },[]);
+
+  return <div ref={scene} className="build-scene engine-scene" role="img" aria-labelledby="engine-diagram-title engine-diagram-description">
+    <span id="engine-diagram-title" className="sr-only">Client and server system architecture</span>
+    <span id="engine-diagram-description" className="sr-only">Web and mobile clients send HTTPS requests to a backend API. The backend validates identity, applies business logic, reads and writes data, calls external services, returns responses, and delivers bidirectional real-time events.</span>
+    <div className="engine-grid" aria-hidden="true" />
+    <svg className="engine-connectors engine-connectors--desktop" viewBox="0 0 1000 600" aria-hidden="true">
+      <defs><marker id="engine-arrow-blue" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0 10 5 0 10z"/></marker><marker id="engine-arrow-cyan" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0 10 5 0 10z"/></marker></defs>
+      <path className="engine-path engine-path--request-desktop" d="M245 238 H350" markerEnd="url(#engine-arrow-blue)"/><path className="engine-path engine-path--response-desktop engine-path--response" d="M350 286 H245" markerEnd="url(#engine-arrow-blue)"/>
+      <path className="engine-path engine-path--events-desktop engine-path--events" d="M350 350 H245" markerEnd="url(#engine-arrow-cyan)"/><path className="engine-path engine-path--event-return" d="M245 366 H350" markerEnd="url(#engine-arrow-cyan)"/>
+      <path className="engine-path engine-path--data-out-desktop" d="M625 205 L735 157" markerEnd="url(#engine-arrow-blue)"/><path className="engine-path engine-path--data-return-desktop engine-path--response" d="M735 196 L625 238" markerEnd="url(#engine-arrow-blue)"/>
+      <path className="engine-path engine-path--realtime-desktop engine-path--events" d="M625 321 H735" markerEnd="url(#engine-arrow-cyan)"/><path className="engine-path engine-path--event-return" d="M735 339 H625" markerEnd="url(#engine-arrow-cyan)"/>
+      <path className="engine-path engine-path--integration-desktop" d="M625 397 L735 475" markerEnd="url(#engine-arrow-blue)"/>
+      <g className="engine-route-labels"><text x="270" y="225">REQUEST</text><text x="270" y="307">RESPONSE</text><text x="272" y="342">EVENTS</text><text x="650" y="166">READ / WRITE</text><text x="655" y="310">REAL-TIME</text><text x="654" y="440">INTEGRATION</text></g>
+      <circle className="engine-signal engine-signal--primary" r="5"/><circle className="engine-signal engine-signal--data" r="5"/><circle className="engine-signal engine-signal--service" r="5"/><circle className="engine-signal engine-signal--event" r="5"/>
+    </svg>
+    <svg className="engine-connectors engine-connectors--mobile" viewBox="0 0 600 820" aria-hidden="true">
+      <defs><marker id="engine-arrow-mobile" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0 10 5 0 10z"/></marker><marker id="engine-arrow-mobile-cyan" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0 10 5 0 10z"/></marker></defs>
+      <path className="engine-path engine-path--request-mobile" d="M272 185 V264" markerEnd="url(#engine-arrow-mobile)"/><path className="engine-path engine-path--response-mobile engine-path--response" d="M328 264 V185" markerEnd="url(#engine-arrow-mobile)"/>
+      <path className="engine-path engine-path--events-mobile engine-path--events" d="M365 264 V185" markerEnd="url(#engine-arrow-mobile-cyan)"/><path className="engine-path engine-path--event-return" d="M398 185 V264" markerEnd="url(#engine-arrow-mobile-cyan)"/>
+      <path className="engine-path engine-path--data-out-mobile" d="M245 500 L118 618" markerEnd="url(#engine-arrow-mobile)"/><path className="engine-path engine-path--data-return-mobile engine-path--response" d="M150 636 L274 520" markerEnd="url(#engine-arrow-mobile)"/>
+      <path className="engine-path engine-path--realtime-mobile engine-path--events" d="M300 520 V620" markerEnd="url(#engine-arrow-mobile-cyan)"/><path className="engine-path engine-path--event-return" d="M328 620 V520" markerEnd="url(#engine-arrow-mobile-cyan)"/>
+      <path className="engine-path engine-path--integration-mobile" d="M355 500 L482 618" markerEnd="url(#engine-arrow-mobile)"/>
+      <g className="engine-route-labels"><text x="182" y="230">REQUEST / RESPONSE</text><text x="71" y="573">READ / WRITE</text><text x="250" y="576">EVENTS</text><text x="420" y="573">INTEGRATION</text></g>
+      <circle className="engine-signal engine-signal--primary" r="5"/><circle className="engine-signal engine-signal--data" r="5"/><circle className="engine-signal engine-signal--service" r="5"/><circle className="engine-signal engine-signal--event" r="5"/>
+    </svg>
+    <section className="engine-layer engine-clients"><header><small>01 / CLIENT APPLICATIONS</small><b>INTERFACE LAYER</b></header><div><span>WEB APPLICATION</span><span>MOBILE APPLICATION</span></div><p>HTTPS requests · responses · live updates</p></section>
+    <section className="engine-layer engine-backend"><header><small>02 / CENTRAL ORCHESTRATION</small><b>BACKEND API</b></header><div className="engine-modules"><span><i>AUTH</i>Identity / access</span><span><i>VALIDATION</i>Request integrity</span><span><i>LOGIC</i>Product rules</span></div><p>RECEIVE → VERIFY → PROCESS → COORDINATE</p></section>
+    <section className="engine-layer engine-service engine-database"><header><small>03 / DATA</small><b>DATABASE</b></header><p>Persistent reads / writes</p></section>
+    <section className="engine-layer engine-service engine-realtime"><header><small>04 / LIVE</small><b>REAL-TIME EVENTS</b></header><p>Socket.IO / WebSocket</p></section>
+    <section className="engine-layer engine-service engine-external"><header><small>05 / PROVIDERS</small><b>EXTERNAL SERVICES</b></header><p>Payments · notifications · APIs</p></section>
+    <div className="engine-status"><i/> ARCHITECTURE / ACTIVE</div>
   </div>;
 }
 
 function LaunchScene() {
-  return <div className="build-scene launch-scene" aria-hidden="true">
-    <div className="launch-rings"><i/><i/><i/><span>LIVE</span></div>
-    <div className="launch-terminal"><div><i/><i/><i/><span>RELEASE PIPELINE</span></div><p><b>01</b> BUILD <em>COMPLETE</em></p><p><b>02</b> VERIFY <em>COMPLETE</em></p><p><b>03</b> RELEASE <em>LIVE</em></p></div>
-    <div className="launch-signal"><span>PRODUCT STATUS</span><strong>DEPLOYED</strong><i/></div>
+  const scene = useRef<HTMLDivElement>(null);
+  useEffect(()=>{
+    if(!scene.current)return;
+    const context=gsap.context(()=>{
+      if(matchMedia("(prefers-reduced-motion:reduce)").matches)return;
+      const timeline=gsap.timeline({paused:true,repeat:-1,repeatDelay:1.1});
+      const routes=["a","b","c"];
+      timeline.set(".launch-input-signal",{opacity:1});
+      routes.forEach((route,index)=>timeline.to(`.launch-signal--${route}`,{duration:.9,ease:"power1.inOut",motionPath:{path:`.launch-route--${route}`,align:`.launch-route--${route}`,alignOrigin:[.5,.5]}},index===0?0:index*.08));
+      timeline.set(".launch-input-signal",{opacity:0},1)
+        .to(".launch-core",{borderColor:"rgba(108,166,255,.92)",boxShadow:"0 0 2.6rem rgba(72,138,235,.2),inset 0 0 2rem rgba(72,138,235,.06)",duration:.34,yoyo:true,repeat:1},.9)
+        .fromTo(".launch-core-progress i",{scaleX:0},{scaleX:1,duration:.58,ease:"power2.out"},1)
+        .set(".launch-output-signal",{opacity:1},1.45)
+        .to(".launch-output-signal",{duration:.92,ease:"power2.inOut",motionPath:{path:".launch-route--release",align:".launch-route--release",alignOrigin:[.5,.5]}},1.45)
+        .to(".launch-confirmation",{borderColor:"rgba(105,165,255,.78)",color:"#e8f2ff",duration:.25,yoyo:true,repeat:1},2.05)
+        .set(".launch-output-signal",{opacity:0},2.4);
+      const sync=(entry?:IntersectionObserverEntry)=>{const visible=entry?entry.isIntersecting:Boolean(scene.current&&scene.current.getBoundingClientRect().right>0&&scene.current.getBoundingClientRect().left<innerWidth);if(visible&&!document.hidden)timeline.play();else timeline.pause()};
+      const observer=new IntersectionObserver(([entry])=>sync(entry),{threshold:.28});observer.observe(scene.current!);
+      const visibility=()=>sync();document.addEventListener("visibilitychange",visibility);
+      return()=>{observer.disconnect();document.removeEventListener("visibilitychange",visibility);timeline.kill()};
+    },scene);return()=>context.revert();
+  },[]);
+  return <div ref={scene} className="build-scene launch-scene" role="img" aria-labelledby="launch-visual-title launch-visual-description">
+    <span id="launch-visual-title" className="sr-only">Final release activation</span><span id="launch-visual-description" className="sr-only">Build, verification, and system signals converge into a final release core before a confirmed launch signal is sent.</span>
+    <div className="launch-grid" aria-hidden="true"/>
+    <svg className="launch-network" viewBox="0 0 1000 600" aria-hidden="true">
+      <defs><marker id="launch-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0 10 5 0 10z"/></marker></defs>
+      <path className="launch-route launch-route--a" d="M78 145 H275 L445 270" markerEnd="url(#launch-arrow)"/><path className="launch-route launch-route--b" d="M78 300 H445" markerEnd="url(#launch-arrow)"/><path className="launch-route launch-route--c" d="M78 455 H275 L445 330" markerEnd="url(#launch-arrow)"/><path className="launch-route launch-route--release" d="M555 300 H920" markerEnd="url(#launch-arrow)"/>
+      <path className="launch-guide" d="M275 118 V482 M720 270 V330"/><circle className="launch-input-signal launch-signal--a" r="5"/><circle className="launch-input-signal launch-signal--b" r="5"/><circle className="launch-input-signal launch-signal--c" r="5"/><circle className="launch-output-signal" r="6"/>
+    </svg>
+    <div className="launch-inputs"><span><i/>BUILD COMPLETE</span><span><i/>QUALITY VERIFIED</span><span><i/>SYSTEMS ALIGNED</span></div>
+    <section className="launch-core"><header><span>FINAL RELEASE</span><b>04</b></header><strong>ACTIVATED</strong><div className="launch-core-progress"><i/></div><footer><span>BUILD</span><span>VERIFY</span><span>RELEASE</span></footer></section>
+    <div className="launch-confirmation"><span>GO-LIVE</span><strong>LAUNCH CONFIRMED</strong><small>PRODUCT / READY</small></div>
+    <div className="launch-meta"><span>ALL SYSTEMS / ALIGNED</span><span>RELEASE CHANNEL / STABLE</span></div>
   </div>;
 }
 
@@ -93,11 +193,11 @@ export default function BehindTheBuild() {
       media.add("(prefers-reduced-motion: no-preference)", () => {
         const syncViewport=()=>root.current?.style.setProperty("--story-viewport",`${stage.current?.clientWidth??innerWidth}px`);
         syncViewport();
-        const distance=()=>{const panels=track.current?.querySelectorAll<HTMLElement>(".build-chapter");const last=panels?.[panels.length-1];return Math.max(0,(last?.offsetLeft??0)+(last?.offsetWidth??0)-(stage.current?.clientWidth??innerWidth))}; const travelShare=.9;
-        const timeline=gsap.timeline({ defaults:{ease:"none"}, scrollTrigger:{ id:"behind-build-horizontal", trigger:stage.current, start:"top top", end:()=>`+=${distance()/travelShare}`, pin:true, pinSpacing:true, scrub:1.05, anticipatePin:1, invalidateOnRefresh:true, onRefreshInit:syncViewport, onUpdate:self=>root.current?.style.setProperty("--build-progress",`${self.progress}`) }});
+        const distance=()=>{const panels=track.current?.querySelectorAll<HTMLElement>(".build-chapter");const last=panels?.[panels.length-1];return Math.max(0,(last?.offsetLeft??0)+(last?.offsetWidth??0)-(stage.current?.clientWidth??innerWidth))}; const travelShare=.9; const mobile=matchMedia("(max-width:900px)").matches;
+        const timeline=gsap.timeline({ defaults:{ease:"none"}, scrollTrigger:{ id:"behind-build-horizontal", trigger:stage.current, start:"top top", end:()=>`+=${distance()/travelShare}`, pin:true, pinSpacing:true, scrub:mobile?.32:.65, anticipatePin:mobile?.5:1, invalidateOnRefresh:true, onRefreshInit:syncViewport, onUpdate:self=>root.current?.style.setProperty("--build-progress",`${self.progress}`) }});
         timeline.fromTo(".build-stage-chrome,.build-stage-footer",{opacity:.3},{opacity:1,duration:.05,ease:"power1.out"})
           .fromTo(".build-chapter:first-child .build-copy,.build-chapter:first-child .build-visual",{scale:.987},{scale:1,duration:.05,ease:"power1.out"},0)
-          .to(track.current,{x:()=>-distance(),duration:travelShare},.05)
+          .to(track.current,{x:()=>-distance(),duration:travelShare,force3D:true},.05)
           .to(".build-chapter:last-child .build-copy,.build-chapter:last-child .build-visual",{y:-8,duration:.05,ease:"power1.inOut"},.95)
           .to(".build-stage-chrome,.build-stage-footer",{opacity:.38,duration:.05},.95);
         gsap.utils.toArray<HTMLElement>(".build-chapter").forEach(panel=>{
@@ -126,12 +226,11 @@ export default function BehindTheBuild() {
   },[]);
 
   return <section ref={root} id="behind-build" className="behind-build" aria-labelledby="build-heading">
-    <div className="build-prelude"><div><p>05 / PROCESS</p><span>SECOND HORIZONTAL CHAPTER</span></div><h2 id="build-heading">BEHIND<br/><em>THE BUILD.</em></h2><p>Four connected stages. One end-to-end mindset—from the first question to a product people can use.</p><div className="build-axis">VERTICAL <span>↓</span> HORIZONTAL <span>→</span></div></div>
+    <div className="build-prelude"><div><p>04 / PROCESS</p><span>SECOND HORIZONTAL CHAPTER</span></div><h2 id="build-heading">BEHIND<br/><em>THE BUILD.</em></h2><p>Four connected stages. One end-to-end mindset—from the first question to a product people can use.</p><div className="build-axis">VERTICAL <span>↓</span> HORIZONTAL <span>→</span></div></div>
     <div ref={stage} className="build-stage">
       <div className="build-stage-chrome" aria-hidden="true"><span>BEHIND THE BUILD / 04</span><span className="build-progress"><i/></span><span>IDEA → LAUNCH</span></div>
       <div ref={track} className="build-track" role="region" aria-label="Behind the Build chapters. Continue scrolling vertically to move through the process." tabIndex={0}>{chapters.map(chapter=><BuildChapter chapter={chapter} key={chapter.index}/>)}</div>
       <div className="build-stage-footer" aria-hidden="true"><span>USE VERTICAL SCROLL</span><b>→</b><span>PROCESS / X</span></div>
     </div>
-    <div className="build-review-stop"><p>END-TO-END / COMPLETE</p><h2>FROM IDEA<br/><span>TO IMPACT.</span></h2><small>NEXT / LET&apos;S CONNECT</small></div>
   </section>;
 }
