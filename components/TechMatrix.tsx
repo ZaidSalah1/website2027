@@ -1,53 +1,60 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, type CSSProperties } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { skillGroups, skills } from "../data/skills";
+import { Braces, Database, PanelsTopLeft, ServerCog } from "lucide-react";
+import { skillGroups, skills, type SkillGroup } from "../data/skills";
 
-function SkillCard({ code, name, use, index }: { code: string; name: string; use: string; index: number }) {
+const categoryMeta: Record<SkillGroup, { index: string; description: string; icon: typeof PanelsTopLeft }> = {
+  "Frontend & Mobile": { index: "01", description: "Interfaces and cross-platform product experiences.", icon: PanelsTopLeft },
+  "Backend & APIs": { index: "02", description: "Application services, authentication, and real-time systems.", icon: Braces },
+  "Database & Services": { index: "03", description: "Persistent data, cloud services, and notification delivery.", icon: Database },
+  "Tools & Infrastructure": { index: "04", description: "Source control, servers, and production operations.", icon: ServerCog },
+};
+
+function TechnologyCategory({ group }: { group: SkillGroup }) {
+  const meta = categoryMeta[group];
+  const CategoryIcon = meta.icon;
+  const groupSkills = skills.filter((skill) => skill.group === group);
+
   return (
-    <article className="skill-card" tabIndex={0} data-skill-card>
-      <div className="skill-card-top"><span className="skill-icon">{code}</span><small>SYS.{String(index + 1).padStart(2, "0")}</small></div>
-      <div><h3>{name}</h3><p>{use}</p></div>
-      <div className="skill-signal"><span>SYSTEM / READY</span><i /></div>
+    <article className="matrix-category" data-matrix-category tabIndex={0}>
+      <header className="matrix-category-head">
+        <span className="matrix-category-icon" aria-hidden="true"><CategoryIcon /></span>
+        <div><small>{meta.index} / CAPABILITY</small><h3>{group}</h3></div>
+      </header>
+      <p className="matrix-category-copy">{meta.description}</p>
+      <div className="matrix-technologies" role="list" aria-label={`${group} technologies`}>
+        {groupSkills.map((skill) => {
+          const Icon = skill.icon;
+          return (
+            <div className="matrix-technology" role="listitem" key={skill.name} title={skill.use}>
+              <span className="matrix-technology-logo" style={{ "--technology-color": skill.tone } as CSSProperties} aria-hidden="true"><Icon /></span>
+              <span>{skill.name}</span>
+            </div>
+          );
+        })}
+      </div>
     </article>
   );
 }
 
-function CompactSkillGroups() {
-  return <div className="tech-compact" aria-label="Technology groups">
-    {skillGroups.map((group, groupIndex) => <section className="tech-compact-group" data-compact-skill-group key={group}>
-      <div className="tech-compact-title"><span>0{groupIndex + 1}</span><h3>{group}</h3></div>
-      <div className="tech-compact-items">
-        {skills.filter((skill) => skill.group === group).map((skill) => {
-          const Icon = skill.icon;
-          return <div className="tech-compact-item" key={skill.name} tabIndex={0} title={skill.use}>
-            <Icon aria-hidden="true" />
-            <span>{skill.name}</span>
-          </div>;
-        })}
-      </div>
-    </section>)}
-  </div>;
-}
-
 export default function TechMatrix() {
   const root = useRef<HTMLElement>(null);
+
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
     const context = gsap.context(() => {
       if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-      const media = gsap.matchMedia();
-      media.add("(min-width: 1025px)", () => gsap.from("[data-skill-card]", {
-          y: 42, opacity: 0, stagger: 0.055, duration: 0.7, ease: "power3.out",
-          scrollTrigger: { id: "tech-matrix-reveal", trigger: ".tech-grid", start: "top 82%", once: true },
-        }));
-      media.add("(max-width: 1024px)", () => gsap.from("[data-compact-skill-group]", {
-          y: 24, opacity: 0, stagger: 0.09, duration: 0.55, ease: "power2.out",
-          scrollTrigger: { id: "tech-compact-reveal", trigger: ".tech-compact", start: "top 86%", once: true },
-        }));
-      return () => media.revert();
+      gsap.from("[data-matrix-category]", {
+        y: 30,
+        opacity: 0,
+        stagger: 0.08,
+        duration: 0.65,
+        ease: "power3.out",
+        scrollTrigger: { id: "tech-matrix-reveal", trigger: ".matrix-categories", start: "top 84%", once: true },
+      });
     }, root);
     return () => context.revert();
   }, []);
@@ -57,10 +64,9 @@ export default function TechMatrix() {
       <div className="tech-heading">
         <p>05 / SYSTEM ARCHITECTURE</p>
         <h2 id="tech-heading">TECH <span>MATRIX</span></h2>
-        <div><p>Technologies selected to build clear, reliable products across web, mobile, and backend systems.</p><small>FOCUS EACH MODULE TO INSPECT</small></div>
+        <div><p>Technologies selected to build clear, reliable products across web, mobile, backend, and production systems.</p><small>FOUR CONNECTED CAPABILITIES</small></div>
       </div>
-      <div className="tech-grid">{skills.map(({ code, name, use }, index) => <SkillCard code={code} name={name} use={use} index={index} key={name} />)}</div>
-      <CompactSkillGroups />
+      <div className="matrix-categories">{skillGroups.map((group) => <TechnologyCategory group={group} key={group} />)}</div>
       <div className="phase-stop"><span>PHASE 5 / COMPLETE</span><p>Product systems, selected with intent.</p></div>
     </section>
   );

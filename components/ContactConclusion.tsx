@@ -12,12 +12,13 @@ const navigation = [
   ["HOME", "#"], ["PROJECTS", "#projects"], ["PROCESS", "#behind-build"], ["SKILLS", "#skills"], ["CONTACT", "#contact"],
 ];
 const socials = [
-  { label:"LINKEDIN", eyebrow:"PROFESSIONAL NETWORK", href:null, icon:FaLinkedinIn },
+  { label:"LINKEDIN", eyebrow:"PROFESSIONAL NETWORK", href:"https://www.linkedin.com/in/zaid-salah/", icon:FaLinkedinIn },
   { label:"GITHUB", eyebrow:"CODE & PROJECTS", href:"https://github.com/ZaidSalah1", icon:SiGithub },
-  { label:"EMAIL", eyebrow:"DIRECT CONTACT", href:null, icon:Mail },
+    { label: "EMAIL", eyebrow: "DIRECT CONTACT", href: "mailto:zaid71457@gmail.com", icon: Mail },
+
 ];
 const technologies = ["REACT", "REACT NATIVE", "TYPESCRIPT", "NODE.JS", "POSTGRESQL", "NEXT.JS"];
-const resumeHref: string | null = null;
+const resumeHref: string | null = "/2026 CV - Software Engineer.pdf";
 
 export default function ContactConclusion() {
   const root = useRef<HTMLElement>(null);

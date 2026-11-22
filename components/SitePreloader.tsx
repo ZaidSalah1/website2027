@@ -11,10 +11,14 @@ export default function SitePreloader() {
   const [progress, setProgress] = useState(8);
 
   useEffect(() => {
-    const started = performance.now();
     let finished = false;
-    let progressFrame = 0;
+    let completionTimer = 0;
+    let hiddenTimer = 0;
     document.documentElement.dataset.preloading = "true";
+
+    const markReady = (value: number) => {
+      if (!finished) setProgress((current) => Math.max(current, value));
+    };
 
     const waitForHero = async () => {
       const portrait = document.querySelector<HTMLImageElement>("[data-critical-asset='hero-portrait']");
@@ -30,37 +34,34 @@ export default function SitePreloader() {
       }
     };
 
-    const readiness = Promise.all([
-      waitForHero(),
-      document.fonts?.ready ?? Promise.resolve(),
-      new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))),
-    ]);
+    const heroReady = waitForHero().then(() => markReady(88));
+    const fontsReady = (document.fonts?.ready ?? Promise.resolve()).then(() => markReady(62));
+    const interfaceReady = new Promise<void>((resolve) =>
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        markReady(32);
+        resolve();
+      })),
+    );
+    const readiness = Promise.all([heroReady, fontsReady, interfaceReady]);
     const fallback = new Promise<void>((resolve) => window.setTimeout(resolve, FALLBACK_MS));
     const minimum = new Promise<void>((resolve) => window.setTimeout(resolve, MINIMUM_MS));
 
-    const animateProgress = () => {
-      const elapsed = performance.now() - started;
-      setProgress(Math.min(92, 8 + (elapsed / MINIMUM_MS) * 84));
-      if (!finished) progressFrame = requestAnimationFrame(animateProgress);
-    };
-    progressFrame = requestAnimationFrame(animateProgress);
-
     Promise.all([Promise.race([readiness, fallback]), minimum]).then(() => {
       finished = true;
-      cancelAnimationFrame(progressFrame);
       setProgress(100);
-      window.setTimeout(() => {
+      completionTimer = window.setTimeout(() => {
         setExiting(true);
         delete document.documentElement.dataset.preloading;
         window.dispatchEvent(new CustomEvent("portfolio:ready"));
         requestAnimationFrame(() => window.dispatchEvent(new Event("resize")));
-        window.setTimeout(() => setHidden(true), 720);
+        hiddenTimer = window.setTimeout(() => setHidden(true), 720);
       }, 120);
     });
 
     return () => {
       finished = true;
-      cancelAnimationFrame(progressFrame);
+      window.clearTimeout(completionTimer);
+      window.clearTimeout(hiddenTimer);
       delete document.documentElement.dataset.preloading;
     };
   }, []);
@@ -71,10 +72,10 @@ export default function SitePreloader() {
       <div className="preloader-grid" aria-hidden="true" />
       <div className="preloader-orbit" aria-hidden="true"><i /><i /></div>
       <div className="preloader-content">
-        <span className="preloader-kicker">PORTFOLIO SYSTEM / INITIALIZING</span>
+        <span className="preloader-kicker">PORTFOLIO / INITIALIZING</span>
         <div className="preloader-name"><strong>ZAID</strong><strong>SALAH</strong></div>
         <div className="preloader-status"><span>OBSIDIAN INTERFACE</span><b>{String(Math.round(progress)).padStart(3, "0")}%</b></div>
-        <div className="preloader-rail" aria-hidden="true"><i style={{ transform: `scaleX(${progress / 100})` }} /></div>
+        <div className="preloader-rail" role="progressbar" aria-label="Portfolio loading progress" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(progress)}><i style={{ transform: `scaleX(${progress / 100})` }} /></div>
       </div>
     </div>
   );
