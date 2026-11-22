@@ -54,12 +54,13 @@ export default function Hero() {
   useEffect(() => {
     const card = journeyCard.current;
     if (!card || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const mobile = matchMedia("(max-width: 800px)");
     let intersecting = true;
     let hovered = false;
     let remaining = journeyDuration;
     let startedAt = 0;
     let timer = 0;
-    const canRun = () => intersecting && !hovered && document.visibilityState === "visible";
+    const canRun = () => !mobile.matches && intersecting && !hovered && document.visibilityState === "visible";
     const clear = () => {
       if (!timer) return;
       window.clearTimeout(timer);
@@ -90,6 +91,7 @@ export default function Hero() {
     observer.observe(card);
     card.addEventListener("pointerenter", enter);
     card.addEventListener("pointerleave", leave);
+    mobile.addEventListener("change", sync);
     document.addEventListener("visibilitychange", sync);
     sync();
     return () => {
@@ -97,6 +99,7 @@ export default function Hero() {
       observer.disconnect();
       card.removeEventListener("pointerenter", enter);
       card.removeEventListener("pointerleave", leave);
+      mobile.removeEventListener("change", sync);
       document.removeEventListener("visibilitychange", sync);
       card.classList.remove("journey-paused");
       resetJourneyTimer.current = () => undefined;
@@ -106,13 +109,14 @@ export default function Hero() {
   useEffect(() => {
     const card = expertiseCard.current;
     if (!card || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const mobile = window.matchMedia("(max-width: 800px)");
 
     let isVisible = true;
     let isHovered = false;
     let remaining = expertiseDuration;
     let startedAt = 0;
     let timer = 0;
-    const canRun = () => isVisible && !isHovered && document.visibilityState === "visible";
+    const canRun = () => !mobile.matches && isVisible && !isHovered && document.visibilityState === "visible";
     const stop = () => {
       if (!timer) return;
       window.clearTimeout(timer);
@@ -154,6 +158,7 @@ export default function Hero() {
     observer.observe(card);
     card.addEventListener("pointerenter", enter);
     card.addEventListener("pointerleave", leave);
+    mobile.addEventListener("change", sync);
     document.addEventListener("visibilitychange", sync);
     sync();
 
@@ -162,6 +167,7 @@ export default function Hero() {
       observer.disconnect();
       card.removeEventListener("pointerenter", enter);
       card.removeEventListener("pointerleave", leave);
+      mobile.removeEventListener("change", sync);
       document.removeEventListener("visibilitychange", sync);
       card.classList.remove("expertise-paused");
       resetExpertiseTimer.current = () => undefined;
@@ -235,7 +241,7 @@ export default function Hero() {
         />
       </div>
 
-      <aside ref={journeyCard} className="telemetry panel" data-intro="panel" data-parallax="ui">
+      {/* <aside ref={journeyCard} className="telemetry panel" data-intro="panel" data-parallax="ui">
         <div className="panel-label">BUILD JOURNEY / AUTO <span>{String(journeyIndex + 1).padStart(2, "0")} / 04</span></div>
         <div className="journey-stages">
           {journeyStages.map((stage, index) => <article className={`journey-stage${journeyIndex === index ? " is-active" : ""}`} aria-hidden={journeyIndex !== index} key={stage.name}>
@@ -261,7 +267,7 @@ export default function Hero() {
             event.currentTarget.parentElement?.querySelectorAll<HTMLButtonElement>("button")[next]?.focus();
           }} key={stage.name}><span>{stage.index}</span><i>{active && <b key={journeyCycle} />}</i></button>;
         })}</div>
-      </aside>
+      </aside> */}
 
       <aside ref={expertiseCard} className="capabilities panel" data-intro="panel" data-parallax="ui">
         <div className="panel-label">EXPERTISE / 04 <span>{String(expertiseIndex + 1).padStart(2, "0")} / 04</span></div>

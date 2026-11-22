@@ -194,9 +194,10 @@ export default function BehindTheBuild() {
         const syncViewport=()=>root.current?.style.setProperty("--story-viewport",`${stage.current?.clientWidth??innerWidth}px`);
         syncViewport();
         const distance=()=>{const panels=track.current?.querySelectorAll<HTMLElement>(".build-chapter");const last=panels?.[panels.length-1];return Math.max(0,(last?.offsetLeft??0)+(last?.offsetWidth??0)-(stage.current?.clientWidth??innerWidth))}; const travelShare=.9; const mobile=matchMedia("(max-width:900px)").matches;
-        const timeline=gsap.timeline({ defaults:{ease:"none"}, scrollTrigger:{ id:"behind-build-horizontal", trigger:stage.current, start:"top top", end:()=>`+=${distance()/travelShare}`, pin:true, pinSpacing:true, scrub:mobile?.32:.65, anticipatePin:mobile?.5:1, invalidateOnRefresh:true, onRefreshInit:syncViewport, onUpdate:self=>root.current?.style.setProperty("--build-progress",`${self.progress}`) }});
+        const timeline=gsap.timeline({ defaults:{ease:"none"}, scrollTrigger:{ id:"behind-build-horizontal", trigger:stage.current, start:"top top", end:()=>`+=${distance()/travelShare}`, pin:true, pinSpacing:true, scrub:mobile?.32:.65, anticipatePin:mobile?.5:1, invalidateOnRefresh:true, onRefreshInit:syncViewport }});
         timeline.fromTo(".build-stage-chrome,.build-stage-footer",{opacity:.3},{opacity:1,duration:.05,ease:"power1.out"})
           .fromTo(".build-chapter:first-child .build-copy,.build-chapter:first-child .build-visual",{scale:.987},{scale:1,duration:.05,ease:"power1.out"},0)
+          .fromTo(".build-progress i",{scaleX:0},{scaleX:1,duration:travelShare},.05)
           .to(track.current,{x:()=>-distance(),duration:travelShare,force3D:true},.05)
           .to(".build-chapter:last-child .build-copy,.build-chapter:last-child .build-visual",{y:-8,duration:.05,ease:"power1.inOut"},.95)
           .to(".build-stage-chrome,.build-stage-footer",{opacity:.38,duration:.05},.95);
@@ -220,7 +221,7 @@ export default function BehindTheBuild() {
           .fromTo(".solution-ui,.component-tree",{y:10,opacity:0},{y:0,opacity:1,stagger:.05,duration:.13,ease:"power2.out"},.72)
           .fromTo(".ready-label",{scale:.9,opacity:0},{scale:1,opacity:1,duration:.12,ease:"power2.out"},.84)
           .fromTo(".idea-note",{opacity:0},{opacity:1,duration:.1},.9);
-        return()=>{root.current?.style.removeProperty("--build-progress");root.current?.style.removeProperty("--story-viewport")};
+        return()=>{root.current?.style.removeProperty("--story-viewport")};
       }); return()=>media.revert();
     },root); return()=>context.revert();
   },[]);
