@@ -3,6 +3,7 @@
 import Image, { getImageProps } from "next/image";
 import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import type { ProjectHeroMedia } from "../data/projectHeroMedia";
 import type { StaticImageData } from "next/image";
 
@@ -38,7 +39,19 @@ export default function GlitchProjectImage({ media, alt, className, sizes, criti
   const [current, setCurrent] = useState(0);
   const [incoming, setIncoming] = useState(media.images.length > 1 ? 1 : 0);
   const [currentReady, setCurrentReady] = useState(false);
+  const [panelActive, setPanelActive] = useState(false);
   const animated = media.transition === "glitch" && media.images.length > 1;
+
+  useEffect(() => {
+    if (!enabled || !root.current) return;
+    const panel = root.current.closest<HTMLElement>("[data-project-active]");
+    const sync = () => setPanelActive(!panel || panel.dataset.projectActive === "true");
+    sync();
+    if (!panel) return;
+    const observer = new MutationObserver(sync);
+    observer.observe(panel, { attributes: true, attributeFilter: ["data-project-active"] });
+    return () => observer.disconnect();
+  }, [enabled]);
 
   useEffect(() => {
     currentRef.current = 0;
@@ -48,7 +61,8 @@ export default function GlitchProjectImage({ media, alt, className, sizes, criti
   }, [media]);
 
   useEffect(() => {
-    if (!enabled || !animated || !root.current || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (!enabled || !animated || !panelActive || !root.current || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    gsap.registerPlugin(ScrollTrigger);
     const element = root.current;
     const projectPanel = element.closest<HTMLElement>("[data-project-active]");
 
@@ -56,7 +70,7 @@ export default function GlitchProjectImage({ media, alt, className, sizes, criti
       if (timerRef.current !== null) window.clearTimeout(timerRef.current);
       timerRef.current = null;
     };
-    const eligible = () => intersectingRef.current && document.visibilityState === "visible" && document.body.dataset.projectModalOpen !== "true" && (!projectPanel || projectPanel.dataset.projectActive === "true");
+    const eligible = () => intersectingRef.current && !ScrollTrigger.isScrolling() && document.visibilityState === "visible" && document.body.dataset.projectModalOpen !== "true" && (!projectPanel || projectPanel.dataset.projectActive === "true");
     const schedule = () => {
       clearTimer();
       if (!eligible() || transitioningRef.current) return;
@@ -123,14 +137,18 @@ export default function GlitchProjectImage({ media, alt, className, sizes, criti
     if (projectPanel) mutation.observe(projectPanel, { attributes: true, attributeFilter: ["data-project-active"] });
     mutation.observe(document.body, { attributes: true, attributeFilter: ["data-project-modal-open"] });
     document.addEventListener("visibilitychange", sync);
+    ScrollTrigger.addEventListener("scrollStart", sync);
+    ScrollTrigger.addEventListener("scrollEnd", sync);
     return () => {
       clearTimer();
       observer.disconnect();
       mutation.disconnect();
       document.removeEventListener("visibilitychange", sync);
+      ScrollTrigger.removeEventListener("scrollStart", sync);
+      ScrollTrigger.removeEventListener("scrollEnd", sync);
       timelineRef.current?.kill();
     };
-  }, [animated, enabled, media]);
+  }, [animated, enabled, media, panelActive]);
 
   if (!enabled) return <div className="glitch-project-image is-pending" data-transition={animated ? "glitch" : "static"} data-image-index="pending"><span className="glitch-placeholder" aria-hidden="true" /></div>;
 
@@ -139,7 +157,7 @@ export default function GlitchProjectImage({ media, alt, className, sizes, criti
   return <div ref={root} className={`glitch-project-image${currentReady ? " is-ready" : " is-loading"}`} data-transition={animated ? "glitch" : "static"} data-image-index={current}>
     <span className="glitch-placeholder" aria-hidden="true" />
     <Image src={currentImage} alt={alt} fill sizes={sizes} className={`${className} glitch-current${currentReady ? " is-ready" : ""}`} placeholder="empty" loading={critical ? "eager" : "lazy"} fetchPriority={critical ? "high" : "auto"} decoding="async" onLoad={(event) => { const image = event.currentTarget; image.decode().catch(() => undefined).finally(() => setCurrentReady(true)); }} />
-    {animated && <>
+    {animated && panelActive && <>
       <Image src={incomingImage} alt="" aria-hidden fill sizes={sizes} className={`${className} glitch-incoming`} placeholder="empty" loading="lazy" decoding="async" />
       {["top", "middle", "bottom"].map((slice) => <Image key={slice} src={incomingImage} alt="" aria-hidden fill sizes={sizes} className={`${className} glitch-slice glitch-slice--${slice}`} placeholder="empty" loading="lazy" decoding="async" />)}
     </>}

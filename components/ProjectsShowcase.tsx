@@ -65,6 +65,10 @@ export default function ProjectsShowcase() {
   useEffect(() => {
     if (!root.current) return;
     let cancelled = false;
+    const waitForIdle = () => new Promise<void>((resolve) => {
+      if ("requestIdleCallback" in window) window.requestIdleCallback(() => resolve(), { timeout: 900 });
+      else globalThis.setTimeout(resolve, 120);
+    });
     const observer = new IntersectionObserver(([entry]) => {
       if (!entry.isIntersecting) return;
       void (async () => {
@@ -72,12 +76,14 @@ export default function ProjectsShowcase() {
         for (let projectIndex = 0; projectIndex < projects.length; projectIndex += 1) {
           const heroMedia = projects[projectIndex].heroMedia;
           if (!heroMedia) continue;
-          const imagesToWarm = projects[projectIndex].ambient === "dashboards" ? heroMedia.images : heroMedia.images.slice(0, 1);
+          const imagesToWarm = heroMedia.images.slice(0, Math.min(2, heroMedia.images.length));
           for (const image of imagesToWarm) {
             await preloadProjectImage(image, sizes);
             if (cancelled) return;
           }
           setLoadedMedia((current) => new Set(current).add(projectIndex));
+          await waitForIdle();
+          if (cancelled) return;
         }
       })();
       observer.disconnect();
@@ -116,13 +122,27 @@ export default function ProjectsShowcase() {
 
         const syncViewport = () => root.current?.style.setProperty("--story-viewport", `${stage.current?.clientWidth ?? window.innerWidth}px`);
         syncViewport();
+        const panels = gsap.utils.toArray<HTMLElement>(".project-panel");
         const distance = () => {
-          const panels = track.current?.querySelectorAll<HTMLElement>(".project-panel");
           const last = panels?.[panels.length - 1];
           return Math.max(0, (last?.offsetLeft ?? 0) + (last?.offsetWidth ?? 0) - (stage.current?.clientWidth ?? window.innerWidth));
         };
         const travelShare = 0.88;
         const mobile = window.matchMedia("(max-width: 900px)").matches;
+        let activeIndex = -1;
+        const setActiveProject = (nextIndex: number) => {
+          if (nextIndex === activeIndex) return;
+          activeIndex = nextIndex;
+          panels.forEach((panel, index) => {
+            panel.dataset.projectActive = index === activeIndex ? "true" : "false";
+            panel.dataset.storyDistance = String(Math.abs(index - activeIndex));
+          });
+        };
+        setActiveProject(0);
+        const onScrollStart = () => mobile && stage.current?.classList.add("is-story-scrolling");
+        const onScrollEnd = () => stage.current?.classList.remove("is-story-scrolling");
+        ScrollTrigger.addEventListener("scrollStart", onScrollStart);
+        ScrollTrigger.addEventListener("scrollEnd", onScrollEnd);
         const timeline = gsap.timeline({
           defaults: { ease: "none" },
           scrollTrigger: {
@@ -130,27 +150,30 @@ export default function ProjectsShowcase() {
             pin: true, pinSpacing: true, scrub: mobile ? .32 : .65, anticipatePin: mobile ? .5 : 1, invalidateOnRefresh: true,
             onRefreshInit: syncViewport,
             onUpdate: (self) => {
-              root.current?.style.setProperty("--projects-progress", `${self.progress}`);
-              const panels = track.current?.querySelectorAll<HTMLElement>(".project-panel");
               const horizontalProgress = gsap.utils.clamp(0, 1, (self.progress - 0.06) / travelShare);
-              const activeIndex = Math.round(horizontalProgress * Math.max(0, (panels?.length ?? 1) - 1));
-              panels?.forEach((panel, index) => panel.dataset.projectActive = index === activeIndex ? "true" : "false");
+              setActiveProject(Math.round(horizontalProgress * Math.max(0, panels.length - 1)));
             },
           },
         });
         timeline
           .fromTo(".projects-stage-chrome, .projects-stage-footer", { opacity: 0.35 }, { opacity: 1, duration: 0.06, ease: "power1.out" })
           .fromTo(".project-panel:first-child .project-copy, .project-panel:first-child .project-art", { scale: 0.985 }, { scale: 1, duration: 0.06, ease: "power1.out" }, 0)
+          .fromTo(".stage-progress i", { scaleX: 0 }, { scaleX: 1, duration: travelShare, ease: "none" }, 0.06)
           .to(track.current, { x: () => -distance(), duration: travelShare, ease: "none", force3D: true }, 0.06)
           .to(".project-panel:last-child .project-copy, .project-panel:last-child .project-art", { y: -8, duration: 0.06, ease: "power1.inOut" }, 0.94)
           .to(".projects-stage-chrome, .projects-stage-footer", { opacity: 0.42, duration: 0.06, ease: "power1.inOut" }, 0.94);
-        gsap.utils.toArray<HTMLElement>(".project-panel").forEach((panel) => {
+        panels.forEach((panel) => {
           gsap.fromTo(panel.querySelectorAll("[data-project-reveal]"), { y: 36, opacity: 0.25 }, {
             y: 0, opacity: 1, stagger: 0.06, ease: "power2.out",
             scrollTrigger: { trigger: panel, containerAnimation: timeline, start: "left 78%", end: "left 48%", scrub: true },
           });
         });
-        return () => { root.current?.style.removeProperty("--projects-progress"); root.current?.style.removeProperty("--story-viewport"); };
+        return () => {
+          ScrollTrigger.removeEventListener("scrollStart", onScrollStart);
+          ScrollTrigger.removeEventListener("scrollEnd", onScrollEnd);
+          stage.current?.classList.remove("is-story-scrolling");
+          root.current?.style.removeProperty("--story-viewport");
+        };
       });
       return () => media.revert();
     }, root);

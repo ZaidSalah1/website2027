@@ -83,13 +83,14 @@ function EngineScene() {
 
         const sync = (entry?:IntersectionObserverEntry) => {
           const visible = entry ? entry.isIntersecting : Boolean(scene.current && scene.current.getBoundingClientRect().right > 0 && scene.current.getBoundingClientRect().left < innerWidth);
-          if (visible && !document.hidden) timeline.play(); else timeline.pause();
+          if (visible && !document.hidden && !ScrollTrigger.isScrolling()) timeline.play(); else timeline.pause();
         };
         const observer = new IntersectionObserver(([entry])=>sync(entry),{threshold:.28});
         observer.observe(scene.current!);
         const visibility = () => sync();
         document.addEventListener("visibilitychange",visibility);
-        return()=>{observer.disconnect();document.removeEventListener("visibilitychange",visibility);timeline.kill()};
+        ScrollTrigger.addEventListener("scrollStart",visibility);ScrollTrigger.addEventListener("scrollEnd",visibility);
+        return()=>{observer.disconnect();document.removeEventListener("visibilitychange",visibility);ScrollTrigger.removeEventListener("scrollStart",visibility);ScrollTrigger.removeEventListener("scrollEnd",visibility);timeline.kill()};
       };
       media.add("(min-width:901px) and (prefers-reduced-motion:no-preference)",()=>setup("desktop"));
       media.add("(max-width:900px) and (prefers-reduced-motion:no-preference)",()=>setup("mobile"));
@@ -148,10 +149,10 @@ function LaunchScene() {
         .to(".launch-output-signal",{duration:.92,ease:"power2.inOut",motionPath:{path:".launch-route--release",align:".launch-route--release",alignOrigin:[.5,.5]}},1.45)
         .to(".launch-confirmation",{borderColor:"rgba(105,165,255,.78)",color:"#e8f2ff",duration:.25,yoyo:true,repeat:1},2.05)
         .set(".launch-output-signal",{opacity:0},2.4);
-      const sync=(entry?:IntersectionObserverEntry)=>{const visible=entry?entry.isIntersecting:Boolean(scene.current&&scene.current.getBoundingClientRect().right>0&&scene.current.getBoundingClientRect().left<innerWidth);if(visible&&!document.hidden)timeline.play();else timeline.pause()};
+      const sync=(entry?:IntersectionObserverEntry)=>{const visible=entry?entry.isIntersecting:Boolean(scene.current&&scene.current.getBoundingClientRect().right>0&&scene.current.getBoundingClientRect().left<innerWidth);if(visible&&!document.hidden&&!ScrollTrigger.isScrolling())timeline.play();else timeline.pause()};
       const observer=new IntersectionObserver(([entry])=>sync(entry),{threshold:.28});observer.observe(scene.current!);
-      const visibility=()=>sync();document.addEventListener("visibilitychange",visibility);
-      return()=>{observer.disconnect();document.removeEventListener("visibilitychange",visibility);timeline.kill()};
+      const visibility=()=>sync();document.addEventListener("visibilitychange",visibility);ScrollTrigger.addEventListener("scrollStart",visibility);ScrollTrigger.addEventListener("scrollEnd",visibility);
+      return()=>{observer.disconnect();document.removeEventListener("visibilitychange",visibility);ScrollTrigger.removeEventListener("scrollStart",visibility);ScrollTrigger.removeEventListener("scrollEnd",visibility);timeline.kill()};
     },scene);return()=>context.revert();
   },[]);
   return <div ref={scene} className="build-scene launch-scene" role="img" aria-labelledby="launch-visual-title launch-visual-description">
@@ -193,21 +194,35 @@ export default function BehindTheBuild() {
       media.add("(prefers-reduced-motion: no-preference)", () => {
         const syncViewport=()=>root.current?.style.setProperty("--story-viewport",`${stage.current?.clientWidth??innerWidth}px`);
         syncViewport();
-        const distance=()=>{const panels=track.current?.querySelectorAll<HTMLElement>(".build-chapter");const last=panels?.[panels.length-1];return Math.max(0,(last?.offsetLeft??0)+(last?.offsetWidth??0)-(stage.current?.clientWidth??innerWidth))}; const travelShare=.9; const mobile=matchMedia("(max-width:900px)").matches;
-        const timeline=gsap.timeline({ defaults:{ease:"none"}, scrollTrigger:{ id:"behind-build-horizontal", trigger:stage.current, start:"top top", end:()=>`+=${distance()/travelShare}`, pin:true, pinSpacing:true, scrub:mobile?.32:.65, anticipatePin:mobile?.5:1, invalidateOnRefresh:true, onRefreshInit:syncViewport }});
+        const panels=gsap.utils.toArray<HTMLElement>(".build-chapter");
+        const distance=()=>{const last=panels[panels.length-1];return Math.max(0,(last?.offsetLeft??0)+(last?.offsetWidth??0)-(stage.current?.clientWidth??innerWidth))}; const travelShare=.9; const mobile=matchMedia("(max-width:900px)").matches;
+        let activeIndex=-1;
+        const setActiveChapter=(nextIndex:number)=>{if(nextIndex===activeIndex)return;activeIndex=nextIndex;panels.forEach((panel,index)=>{panel.dataset.buildActive=index===activeIndex?"true":"false";panel.dataset.storyDistance=String(Math.abs(index-activeIndex))})};
+        setActiveChapter(0);
+        const onScrollStart=()=>mobile&&stage.current?.classList.add("is-story-scrolling");
+        const onScrollEnd=()=>stage.current?.classList.remove("is-story-scrolling");
+        ScrollTrigger.addEventListener("scrollStart",onScrollStart);ScrollTrigger.addEventListener("scrollEnd",onScrollEnd);
+        const timeline=gsap.timeline({ defaults:{ease:"none"}, scrollTrigger:{ id:"behind-build-horizontal", trigger:stage.current, start:"top top", end:()=>`+=${distance()/travelShare}`, pin:true, pinSpacing:true, scrub:mobile?.32:.65, anticipatePin:mobile?.5:1, invalidateOnRefresh:true, onRefreshInit:syncViewport,onUpdate:self=>setActiveChapter(Math.round(gsap.utils.clamp(0,1,(self.progress-.05)/travelShare)*Math.max(0,panels.length-1))) }});
         timeline.fromTo(".build-stage-chrome,.build-stage-footer",{opacity:.3},{opacity:1,duration:.05,ease:"power1.out"})
           .fromTo(".build-chapter:first-child .build-copy,.build-chapter:first-child .build-visual",{scale:.987},{scale:1,duration:.05,ease:"power1.out"},0)
           .fromTo(".build-progress i",{scaleX:0},{scaleX:1,duration:travelShare},.05)
           .to(track.current,{x:()=>-distance(),duration:travelShare,force3D:true},.05)
           .to(".build-chapter:last-child .build-copy,.build-chapter:last-child .build-visual",{y:-8,duration:.05,ease:"power1.inOut"},.95)
           .to(".build-stage-chrome,.build-stage-footer",{opacity:.38,duration:.05},.95);
-        gsap.utils.toArray<HTMLElement>(".build-chapter").forEach(panel=>{
-          gsap.fromTo(panel.querySelectorAll("[data-build-reveal]"),{y:40,opacity:.2},{y:0,opacity:1,stagger:.06,ease:"power2.out",scrollTrigger:{trigger:panel,containerAnimation:timeline,start:"left 80%",end:"left 48%",scrub:true}});
+        panels.forEach((panel,index)=>{
           const front=panel.querySelectorAll("[data-build-depth='front']"); const back=panel.querySelectorAll("[data-build-depth='back']");
-          if(front.length) gsap.fromTo(front,{x:45},{x:-25,scrollTrigger:{trigger:panel,containerAnimation:timeline,start:"left right",end:"right left",scrub:true}});
-          if(back.length) gsap.fromTo(back,{x:-25},{x:20,scrollTrigger:{trigger:panel,containerAnimation:timeline,start:"left right",end:"right left",scrub:true}});
+          if(mobile){
+            const position=.05+(index/Math.max(1,panels.length))*travelShare;
+            timeline.fromTo(panel.querySelectorAll("[data-build-reveal]"),{y:40,opacity:.2},{y:0,opacity:1,stagger:.06,ease:"power2.out",duration:.14},position);
+            if(front.length)timeline.fromTo(front,{x:45},{x:-25,duration:.2,ease:"none"},position);
+            if(back.length)timeline.fromTo(back,{x:-25},{x:20,duration:.2,ease:"none"},position);
+          }else{
+            gsap.fromTo(panel.querySelectorAll("[data-build-reveal]"),{y:40,opacity:.2},{y:0,opacity:1,stagger:.06,ease:"power2.out",scrollTrigger:{trigger:panel,containerAnimation:timeline,start:"left 80%",end:"left 48%",scrub:true}});
+            if(front.length) gsap.fromTo(front,{x:45},{x:-25,scrollTrigger:{trigger:panel,containerAnimation:timeline,start:"left right",end:"right left",scrub:true}});
+            if(back.length) gsap.fromTo(back,{x:-25},{x:20,scrollTrigger:{trigger:panel,containerAnimation:timeline,start:"left right",end:"right left",scrub:true}});
+          }
         });
-        const ideaTimeline=gsap.timeline({scrollTrigger:{trigger:".build-chapter--idea",containerAnimation:timeline,start:"left 94%",end:"right 92%",scrub:true}});
+        const ideaTimeline=gsap.timeline(mobile?{}:{scrollTrigger:{trigger:".build-chapter--idea",containerAnimation:timeline,start:"left 94%",end:"right 92%",scrub:true}});
         ideaTimeline.fromTo(".sheet-a",{y:24,rotate:-7,opacity:0},{y:0,rotate:-3.5,opacity:1,duration:.18,ease:"power2.out"})
           .fromTo(".sticky-note",{y:18,scale:.88,rotate:0,opacity:0},{y:0,scale:1,opacity:1,stagger:.045,duration:.18,ease:"power2.out"},.06)
           .fromTo(".connector-one",{strokeDashoffset:1},{strokeDashoffset:0,duration:.16},.21)
@@ -221,7 +236,8 @@ export default function BehindTheBuild() {
           .fromTo(".solution-ui,.component-tree",{y:10,opacity:0},{y:0,opacity:1,stagger:.05,duration:.13,ease:"power2.out"},.72)
           .fromTo(".ready-label",{scale:.9,opacity:0},{scale:1,opacity:1,duration:.12,ease:"power2.out"},.84)
           .fromTo(".idea-note",{opacity:0},{opacity:1,duration:.1},.9);
-        return()=>{root.current?.style.removeProperty("--story-viewport")};
+        if(mobile){ideaTimeline.duration(.14);timeline.add(ideaTimeline,.055)}
+        return()=>{ScrollTrigger.removeEventListener("scrollStart",onScrollStart);ScrollTrigger.removeEventListener("scrollEnd",onScrollEnd);stage.current?.classList.remove("is-story-scrolling");root.current?.style.removeProperty("--story-viewport")};
       }); return()=>media.revert();
     },root); return()=>context.revert();
   },[]);
