@@ -1055,3 +1055,24 @@ html[data-preloading="true"],html[data-preloading="true"] body{overflow:hidden}
   .preloader-name strong:last-child{margin-top:.12em;-webkit-text-stroke:1.25px #6397ea;paint-order:stroke fill}
   .preloader-status,.preloader-rail{width:min(100%,32rem)}
 }
+
+/* iOS pinned-story performance: stable viewport, bounded paint, active layers only. */
+@media(max-width:1100px) and (prefers-reduced-motion:no-preference){
+  .projects-stage,.build-stage{height:100svh}
+  .projects-track,.build-track{will-change:auto}
+  .project-panel,.build-chapter{contain:layout paint style}
+  .project-panel::after{opacity:1;filter:none;background:radial-gradient(circle,color-mix(in srgb,var(--ambient-accent,var(--panel-accent,var(--lime))) 13%,transparent) 0%,transparent 69%)}
+  .glitch-project-image>img{will-change:auto}
+  .project-panel[data-project-active="true"] .glitch-current,
+  .project-panel[data-project-active="true"] .glitch-incoming,
+  .project-panel[data-project-active="true"] .glitch-slice{will-change:transform,opacity}
+  .project-panel[data-story-distance="2"] .project-art,
+  .build-chapter[data-story-distance="2"] .build-visual,
+  .build-chapter[data-story-distance="3"] .build-visual{visibility:hidden}
+  .projects-stage.is-story-scrolling *,
+  .build-stage.is-story-scrolling *{animation-play-state:paused!important}
+}
+
+@media(max-width:1100px) and (max-height:600px) and (orientation:landscape) and (prefers-reduced-motion:no-preference){
+  .projects-stage,.build-stage{height:100svh;min-height:100svh}
+}
