@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { bindPinnedStorySwipe } from "../lib/pinnedStorySwipe";
+import { bindPinnedStoryMagnet } from "../lib/pinnedStoryMagnet";
 import { useProjectDetails } from "./ProjectDetailsProvider";
 import GlitchProjectImage, { preloadProjectImage } from "./GlitchProjectImage";
 import { projectHeroMedia, type ProjectHeroMedia } from "../data/projectHeroMedia";
@@ -168,7 +170,13 @@ export default function ProjectsShowcase() {
             scrollTrigger: { trigger: panel, containerAnimation: timeline, start: "left 78%", end: "left 48%", scrub: true },
           });
         });
+        const removeSwipe = stage.current && timeline.scrollTrigger
+          ? bindPinnedStorySwipe(stage.current, timeline.scrollTrigger, 1 / timeline.duration())
+          : undefined;
+        const removeMagnet = bindPinnedStoryMagnet(timeline, panels.length, .06, travelShare);
         return () => {
+          removeMagnet?.();
+          removeSwipe?.();
           ScrollTrigger.removeEventListener("scrollStart", onScrollStart);
           ScrollTrigger.removeEventListener("scrollEnd", onScrollEnd);
           stage.current?.classList.remove("is-story-scrolling");
