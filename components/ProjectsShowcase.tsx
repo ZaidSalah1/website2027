@@ -5,6 +5,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { bindPinnedStorySwipe } from "../lib/pinnedStorySwipe";
 import { bindPinnedStoryMagnet } from "../lib/pinnedStoryMagnet";
+import { registerPinnedStoryMomentum } from "../lib/pinnedStoryMomentum";
 import { useProjectDetails } from "./ProjectDetailsProvider";
 import GlitchProjectImage, { preloadProjectImage } from "./GlitchProjectImage";
 import { projectHeroMedia, type ProjectHeroMedia } from "../data/projectHeroMedia";
@@ -171,10 +172,14 @@ export default function ProjectsShowcase() {
           });
         });
         const removeSwipe = stage.current && timeline.scrollTrigger
-          ? bindPinnedStorySwipe(stage.current, timeline.scrollTrigger, 1 / timeline.duration())
+          ? bindPinnedStorySwipe(stage.current, timeline.scrollTrigger, 1 / timeline.duration(), panels.length, .06, travelShare)
           : undefined;
         const removeMagnet = bindPinnedStoryMagnet(timeline, panels.length, .06, travelShare);
+        const removeMomentum = registerPinnedStoryMomentum({
+          timeline, panelCount: panels.length, travelStart: .06, travelDuration: travelShare,
+        });
         return () => {
+          removeMomentum();
           removeMagnet?.();
           removeSwipe?.();
           ScrollTrigger.removeEventListener("scrollStart", onScrollStart);

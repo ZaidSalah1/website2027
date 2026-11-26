@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import Lenis from "lenis";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { createStoryWheelLimiter } from "../lib/pinnedStoryMomentum";
 
 const EASE_OUT_QUART = (value: number) => 1 - Math.pow(1 - value, 4);
 
@@ -50,6 +51,7 @@ export default function SmoothScroll() {
       destroy();
       if (!media.matches || navigator.maxTouchPoints > 0) return;
 
+      const limitStoryWheel = createStoryWheelLimiter();
       lenis = new Lenis({
         lerp: 0.16,
         smoothWheel: true,
@@ -59,6 +61,18 @@ export default function SmoothScroll() {
         anchors: { duration: 0.78, easing: EASE_OUT_QUART },
         stopInertiaOnNavigate: true,
         respectReducedMotion: true,
+        virtualScroll: (data) => {
+          if (lenis && data.event.type === "wheel" && !(data.event as WheelEvent).ctrlKey &&
+              document.body.dataset.projectModalOpen !== "true") {
+            const delta = limitStoryWheel(data.deltaY, lenis.targetScroll, performance.now());
+            if (data.deltaY && delta === 0 && !data.deltaX) {
+              if (data.event.cancelable) data.event.preventDefault();
+              return false;
+            }
+            data.deltaY = delta;
+          }
+          return true;
+        },
         prevent: (node) => Boolean(node.closest(".project-modal-layer, .project-image-viewer, .screen-carousel, [data-lenis-prevent]")),
       });
 

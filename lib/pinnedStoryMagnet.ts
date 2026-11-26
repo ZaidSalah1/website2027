@@ -1,7 +1,7 @@
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
-const magneticRange = .5;
+const magneticRange = .4;
 const settleCheckMs = 40;
 const interruptEvents = ["wheel", "touchstart", "pointerdown", "keydown"] as const;
 

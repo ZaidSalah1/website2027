@@ -5,14 +5,23 @@ const threshold = 8;
 const edgeInset = 24;
 const releaseWindow = 75;
 const maxCoast = 72;
-const interactive = "a, button, input, select, textarea, label, summary, [contenteditable], [role='button'], [data-lenis-prevent]";
+const tapTarget = "a, button, label, summary, [role='button']";
+const nativeControl = "input, select, textarea, [contenteditable], [data-lenis-prevent]";
 
-export function bindPinnedStorySwipe(stage: HTMLElement, trigger: ScrollTrigger, scrollPerPixel: number) {
+export function bindPinnedStorySwipe(
+  stage: HTMLElement,
+  trigger: ScrollTrigger,
+  scrollPerPixel: number,
+  panelCount: number,
+  travelStart: number,
+  travelDuration: number,
+) {
   const phone = matchMedia("(hover: none) and (pointer: coarse)");
   const phoneViewport = matchMedia("(max-width: 500px)");
   const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
   let gesture: {
-    id: number; x: number; y: number; scroll: number; horizontal: boolean;
+    id: number; x: number; y: number; scroll: number; origin: number;
+    axis: "horizontal" | "vertical" | undefined; tapTarget: boolean;
     lastMove: number; velocity: number;
   } | undefined;
   let frame = 0;
@@ -20,9 +29,9 @@ export function bindPinnedStorySwipe(stage: HTMLElement, trigger: ScrollTrigger,
   let lastScroll = 0;
 
   const clampScroll = (value: number) => Math.min(trigger.end, Math.max(trigger.start, value));
-  const canMove = () => trigger.isActive && document.body.dataset.projectModalOpen !== "true";
+  const canMove = () => document.body.dataset.projectModalOpen !== "true";
   const writeScroll = (value: number) => {
-    lastScroll = Math.round(clampScroll(value));
+    lastScroll = Math.round(Math.max(0, value));
     if (window.scrollY !== lastScroll) window.scrollTo({ top: lastScroll, behavior: "instant" });
   };
 
@@ -32,7 +41,6 @@ export function bindPinnedStorySwipe(stage: HTMLElement, trigger: ScrollTrigger,
     frame = 0;
     coast?.kill();
     coast = undefined;
-    stage.removeEventListener("touchmove", move);
     window.removeEventListener("scroll", followFinger);
     window.removeEventListener("touchstart", stop, true);
     window.removeEventListener("wheel", stop, true);
@@ -60,20 +68,37 @@ export function bindPinnedStorySwipe(stage: HTMLElement, trigger: ScrollTrigger,
       return;
     }
     const dx = gesture.x - touch.clientX;
-    if (!gesture.horizontal) {
-      const dy = Math.abs(gesture.y - touch.clientY);
-      if (Math.max(Math.abs(dx), dy) < threshold) return;
-      if (Math.abs(dx) <= dy * 1.2) {
+    const dy = gesture.y - touch.clientY;
+    if (!gesture.axis) {
+      if (!dx && !dy) return;
+      const horizontal = Math.abs(dx) > Math.abs(dy) * 1.2;
+      if (horizontal && (!trigger.isActive || gesture.tapTarget)) {
         stop();
         return;
       }
-      gesture.horizontal = true;
+      const y = gesture.origin;
+      const scale = (trigger.end - trigger.start) * scrollPerPixel;
+      const first = trigger.start + travelStart * scale;
+      const last = first + travelDuration * scale;
+      // Outward swipes at the end panels use the browser's normal page scroll.
+      if (!horizontal && (!dy || (dy < 0 && y <= first + 2) || (dy > 0 && y >= last - 2))) {
+        stop();
+        return;
+      }
+      // Claim the first moving event. Once native pan begins, its release
+      // momentum cannot reliably be taken over by a later scroll listener.
+      event.preventDefault();
+      if (Math.max(Math.abs(dx), Math.abs(dy)) < threshold) return;
+      gesture.axis = horizontal ? "horizontal" : "vertical";
       gesture.scroll = window.scrollY;
       lastScroll = window.scrollY;
       window.addEventListener("scroll", followFinger, { passive: true });
     }
 
-    const next = clampScroll(gesture.scroll + dx * scrollPerPixel);
+    const horizontal = gesture.axis === "horizontal";
+    const requested = gesture.scroll + (horizontal ? dx * scrollPerPixel : dy);
+    // Vertical travel under the finger remains free, even through a pin edge.
+    const next = horizontal ? clampScroll(requested) : requested;
     const now = performance.now();
     const elapsed = now - gesture.lastMove;
     const velocity = (next - gesture.scroll) / Math.max(8, elapsed);
@@ -82,8 +107,9 @@ export function bindPinnedStorySwipe(stage: HTMLElement, trigger: ScrollTrigger,
       : gesture.velocity * .35 + velocity * .65;
     gesture.lastMove = now;
     gesture.x = touch.clientX;
-    if (next === gesture.scroll) return;
+    gesture.y = touch.clientY;
     event.preventDefault();
+    if (next === gesture.scroll) return;
     gesture.scroll = next;
     // Coalesce touch samples into one write per paint without delaying reversals.
     if (!frame) frame = requestAnimationFrame(() => {
@@ -95,21 +121,26 @@ export function bindPinnedStorySwipe(stage: HTMLElement, trigger: ScrollTrigger,
 
   const release = () => {
     const drag = gesture;
-    if (!drag?.horizontal || !canMove()) {
+    if (!drag?.axis || !canMove()) {
       stop();
       return;
     }
     cancelAnimationFrame(frame);
     frame = 0;
     gesture = undefined;
-    stage.removeEventListener("touchmove", move);
     writeScroll(drag.scroll);
 
     const age = performance.now() - drag.lastMove;
     const velocity = drag.velocity * Math.max(0, 1 - age / releaseWindow);
-    const extra = Math.sign(velocity) * Math.min(maxCoast, Math.abs(velocity) * 60);
-    const target = clampScroll(window.scrollY + extra);
-    if (reducedMotion.matches || Math.abs(target - window.scrollY) < 8 || !canMove()) {
+    const horizontal = drag.axis === "horizontal";
+    const panelSpacing = (trigger.end - trigger.start) * scrollPerPixel * travelDuration / (panelCount - 1);
+    const traveled = Math.max(0, (drag.scroll - drag.origin) * Math.sign(velocity));
+    const allowance = Math.max(0, Math.min(panelSpacing * .42, panelSpacing * 1.12 - traveled));
+    const distance = horizontal
+      ? Math.min(maxCoast, Math.abs(velocity) * 60)
+      : allowance > 0 ? allowance * -Math.expm1(-Math.abs(velocity) * 120 / allowance) : 0;
+    const target = clampScroll(window.scrollY + Math.sign(velocity) * distance);
+    if (reducedMotion.matches || !trigger.isActive || Math.abs(target - window.scrollY) < 8 || !canMove()) {
       frame = requestAnimationFrame(stop);
       return;
     }
@@ -120,7 +151,9 @@ export function bindPinnedStorySwipe(stage: HTMLElement, trigger: ScrollTrigger,
     const position = { y: window.scrollY };
     coast = gsap.to(position, {
       y: target,
-      duration: .1 + .08 * Math.min(1, Math.abs(extra) / maxCoast),
+      duration: horizontal
+        ? .1 + .08 * Math.min(1, distance / maxCoast)
+        : .13 + .13 * Math.min(1, distance / (panelSpacing * .42)),
       ease: "power2.out",
       onUpdate: () => {
         if (canMove() && !reducedMotion.matches) writeScroll(position.y);
@@ -132,22 +165,24 @@ export function bindPinnedStorySwipe(stage: HTMLElement, trigger: ScrollTrigger,
 
   const start = (event: TouchEvent) => {
     stop();
-    if (!canMove() || event.touches.length !== 1 ||
-        (event.target instanceof Element && event.target.closest(interactive))) return;
+    const target = event.target instanceof Element ? event.target : null;
+    if (!canMove() || event.touches.length !== 1 || target?.closest(nativeControl)) return;
 
     const touch = event.touches[0];
     if (touch.clientX < edgeInset || touch.clientX > window.innerWidth - edgeInset) return;
+    const origin = window.scrollY;
+    if (origin < trigger.start - innerHeight || origin > trigger.end + innerHeight) return;
     gesture = {
-      id: touch.identifier, x: touch.clientX, y: touch.clientY, scroll: window.scrollY,
-      horizontal: false, lastMove: performance.now(), velocity: 0,
+      id: touch.identifier, x: touch.clientX, y: touch.clientY, scroll: origin, origin,
+      axis: undefined, tapTarget: Boolean(target?.closest(tapTarget)), lastMove: performance.now(), velocity: 0,
     };
-    stage.addEventListener("touchmove", move, { passive: false });
   };
 
   const detach = () => {
     stop();
     stage.classList.remove("has-story-swipe");
     stage.removeEventListener("touchstart", start);
+    stage.removeEventListener("touchmove", move);
     stage.removeEventListener("touchend", release);
     stage.removeEventListener("touchcancel", stop);
   };
@@ -160,6 +195,7 @@ export function bindPinnedStorySwipe(stage: HTMLElement, trigger: ScrollTrigger,
     if (!phone.matches || (!phoneScreen && !responsiveTouchPreview)) return;
     stage.classList.add("has-story-swipe");
     stage.addEventListener("touchstart", start, { passive: true });
+    stage.addEventListener("touchmove", move, { passive: false });
     stage.addEventListener("touchend", release, { passive: true });
     stage.addEventListener("touchcancel", stop, { passive: true });
   };

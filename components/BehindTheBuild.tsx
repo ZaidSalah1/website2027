@@ -6,6 +6,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { MotionPathPlugin } from "gsap/MotionPathPlugin";
 import { bindPinnedStorySwipe } from "../lib/pinnedStorySwipe";
 import { bindPinnedStoryMagnet } from "../lib/pinnedStoryMagnet";
+import { registerPinnedStoryMomentum } from "../lib/pinnedStoryMomentum";
 
 type Chapter = { index: string; eyebrow: string; title: string; copy: string; scene: "idea" | "experience" | "engine" | "launch" };
 
@@ -258,10 +259,14 @@ export default function BehindTheBuild() {
           setActiveChapter(Math.round(progress * (panels.length - 1)));
         });
         const removeSwipe = stage.current && timeline.scrollTrigger
-          ? bindPinnedStorySwipe(stage.current, timeline.scrollTrigger, 1 / timeline.duration())
+          ? bindPinnedStorySwipe(stage.current, timeline.scrollTrigger, 1 / timeline.duration(), panels.length, travelStart, travelShare)
           : undefined;
         const removeMagnet = bindPinnedStoryMagnet(timeline, panels.length, travelStart, travelShare);
+        const removeMomentum = registerPinnedStoryMomentum({
+          timeline, panelCount: panels.length, travelStart: travelStart, travelDuration: travelShare,
+        });
         return () => {
+          removeMomentum();
           removeMagnet?.();
           removeSwipe?.();
           ScrollTrigger.removeEventListener("scrollStart", onScrollStart);
