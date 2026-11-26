@@ -409,6 +409,11 @@ a { color:inherit; text-decoration:none; }
   .project-panel,.build-chapter{width:100%;height:auto;min-height:100svh;margin:0;transform:none!important}
 }
 
+/* Phone stories permit native vertical pan and zoom. */
+.has-story-swipe, .has-story-swipe :is(.projects-track, .build-track) {
+  touch-action: pan-y pinch-zoom;
+}
+
 /* Featured-project titles scale from their text column, not the viewport. */
 .project-copy h3 {
   max-width:100%;

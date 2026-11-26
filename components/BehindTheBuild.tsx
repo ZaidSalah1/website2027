@@ -4,6 +4,9 @@ import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { MotionPathPlugin } from "gsap/MotionPathPlugin";
+import { bindPinnedStorySwipe } from "../lib/pinnedStorySwipe";
+import { bindPinnedStoryMagnet } from "../lib/pinnedStoryMagnet";
+import { registerPinnedStoryMomentum } from "../lib/pinnedStoryMomentum";
 
 type Chapter = { index: string; eyebrow: string; title: string; copy: string; scene: "idea" | "experience" | "engine" | "launch" };
 
@@ -202,20 +205,34 @@ export default function BehindTheBuild() {
         const onScrollStart=()=>mobile&&stage.current?.classList.add("is-story-scrolling");
         const onScrollEnd=()=>stage.current?.classList.remove("is-story-scrolling");
         ScrollTrigger.addEventListener("scrollStart",onScrollStart);ScrollTrigger.addEventListener("scrollEnd",onScrollEnd);
-        const timeline=gsap.timeline({ defaults:{ease:"none"}, scrollTrigger:{ id:"behind-build-horizontal", trigger:stage.current, start:"top top", end:()=>`+=${distance()/travelShare}`, pin:true, pinSpacing:true, scrub:mobile?.32:.65, anticipatePin:mobile?.5:1, invalidateOnRefresh:true, onRefreshInit:syncViewport,onUpdate:self=>setActiveChapter(Math.round(gsap.utils.clamp(0,1,(self.progress-.05)/travelShare)*Math.max(0,panels.length-1))) }});
+        const travelStart = .05;
+        const timeline=gsap.timeline({ defaults:{ease:"none"}, scrollTrigger:{ id:"behind-build-horizontal", trigger:stage.current, start:"top top", end:()=>`+=${distance()/travelShare}`, pin:true, pinSpacing:true, scrub:mobile?.32:.65, anticipatePin:mobile?.5:1, invalidateOnRefresh:true, onRefreshInit:syncViewport }});
         timeline.fromTo(".build-stage-chrome,.build-stage-footer",{opacity:.3},{opacity:1,duration:.05,ease:"power1.out"})
           .fromTo(".build-chapter:first-child .build-copy,.build-chapter:first-child .build-visual",{scale:.987},{scale:1,duration:.05,ease:"power1.out"},0)
           .fromTo(".build-progress i",{scaleX:0},{scaleX:1,duration:travelShare},.05)
           .to(track.current,{x:()=>-distance(),duration:travelShare,force3D:true},.05)
           .to(".build-chapter:last-child .build-copy,.build-chapter:last-child .build-visual",{y:-8,duration:.05,ease:"power1.inOut"},.95)
-          .to(".build-stage-chrome,.build-stage-footer",{opacity:.38,duration:.05},.95);
+          // Retain the mobile duration previously set by the final reveal stagger.
+          .to(".build-stage-chrome,.build-stage-footer",{opacity:.38,duration:mobile?.095:.05},.95);
+        const mobileEntry = mobile ? gsap.timeline({
+          scrollTrigger: { trigger: ".build-prelude", start: "bottom 82%", end: "bottom 10%", scrub: true },
+        }) : undefined;
         panels.forEach((panel,index)=>{
           const front=panel.querySelectorAll("[data-build-depth='front']"); const back=panel.querySelectorAll("[data-build-depth='back']");
           if(mobile){
-            const position=.05+(index/Math.max(1,panels.length))*travelShare;
-            timeline.fromTo(panel.querySelectorAll("[data-build-reveal]"),{y:40,opacity:.2},{y:0,opacity:1,stagger:.06,ease:"power2.out",duration:.14},position);
-            if(front.length)timeline.fromTo(front,{x:45},{x:-25,duration:.2,ease:"none"},position);
-            if(back.length)timeline.fromTo(back,{x:-25},{x:20,duration:.2,ease:"none"},position);
+            const reveal = panel.querySelectorAll("[data-build-reveal]");
+            if (index === 0) {
+              mobileEntry?.fromTo(reveal, { y: 40, opacity: .2 }, {
+                y: 0, opacity: 1, duration: .36, stagger: .05, ease: "power2.out",
+              }, 0);
+              return;
+            }
+            const align = travelStart + travelShare * index / (panels.length - 1);
+            timeline.fromTo(reveal, { y: 40, opacity: .2 }, {
+              y: 0, opacity: 1, duration: .09, stagger: .018, ease: "power2.out",
+            }, align - .16);
+            if(front.length)timeline.fromTo(front,{x:45},{x:-25,duration:.2,ease:"none"},align - .21);
+            if(back.length)timeline.fromTo(back,{x:-25},{x:20,duration:.2,ease:"none"},align - .21);
           }else{
             gsap.fromTo(panel.querySelectorAll("[data-build-reveal]"),{y:40,opacity:.2},{y:0,opacity:1,stagger:.06,ease:"power2.out",scrollTrigger:{trigger:panel,containerAnimation:timeline,start:"left 80%",end:"left 48%",scrub:true}});
             if(front.length) gsap.fromTo(front,{x:45},{x:-25,scrollTrigger:{trigger:panel,containerAnimation:timeline,start:"left right",end:"right left",scrub:true}});
@@ -236,8 +253,27 @@ export default function BehindTheBuild() {
           .fromTo(".solution-ui,.component-tree",{y:10,opacity:0},{y:0,opacity:1,stagger:.05,duration:.13,ease:"power2.out"},.72)
           .fromTo(".ready-label",{scale:.9,opacity:0},{scale:1,opacity:1,duration:.12,ease:"power2.out"},.84)
           .fromTo(".idea-note",{opacity:0},{opacity:1,duration:.1},.9);
-        if(mobile){ideaTimeline.duration(.14);timeline.add(ideaTimeline,.055)}
-        return()=>{ScrollTrigger.removeEventListener("scrollStart",onScrollStart);ScrollTrigger.removeEventListener("scrollEnd",onScrollEnd);stage.current?.classList.remove("is-story-scrolling");root.current?.style.removeProperty("--story-viewport")};
+        if (mobileEntry) mobileEntry.add(ideaTimeline, .08);
+        timeline.eventCallback("onUpdate", () => {
+          const progress = gsap.utils.clamp(0, 1, (timeline.time() - travelStart) / travelShare);
+          setActiveChapter(Math.round(progress * (panels.length - 1)));
+        });
+        const removeSwipe = stage.current && timeline.scrollTrigger
+          ? bindPinnedStorySwipe(stage.current, timeline.scrollTrigger, 1 / timeline.duration(), panels.length, travelStart, travelShare)
+          : undefined;
+        const removeMagnet = bindPinnedStoryMagnet(timeline, panels.length, travelStart, travelShare);
+        const removeMomentum = registerPinnedStoryMomentum({
+          timeline, panelCount: panels.length, travelStart: travelStart, travelDuration: travelShare,
+        });
+        return () => {
+          removeMomentum();
+          removeMagnet?.();
+          removeSwipe?.();
+          ScrollTrigger.removeEventListener("scrollStart", onScrollStart);
+          ScrollTrigger.removeEventListener("scrollEnd", onScrollEnd);
+          stage.current?.classList.remove("is-story-scrolling");
+          root.current?.style.removeProperty("--story-viewport");
+        };
       }); return()=>media.revert();
     },root); return()=>context.revert();
   },[]);
